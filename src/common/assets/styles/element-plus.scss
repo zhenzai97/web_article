@@ -1,0 +1,34 @@
+// 自定义 Element Plus 样式
+
+// 抽屉
+.el-drawer__header {
+  margin-bottom: 0 !important;
+}
+
+// 表格（与 RecentArticlesPanel 统一）
+.el-table {
+  th.el-table__cell {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--el-text-color-secondary);
+    background: var(--el-fill-color-lighter) !important;
+  }
+
+  td.el-table__cell {
+    font-size: 13px;
+  }
+}
+
+// 分页
+.el-pagination {
+  // 参考 Bootstrap 的响应式设计 WIDTH = 768
+  @media screen and (max-width: 768px) {
+    .el-pagination__total,
+    .el-pagination__sizes,
+    .el-pagination__jump,
+    .btn-prev,
+    .btn-next {
+      display: none;
+    }
+  }
+}

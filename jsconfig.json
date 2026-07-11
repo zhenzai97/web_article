@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "jsx": "preserve",
+    "baseUrl": ".",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "paths": {
+      "@/*": ["src/*"],
+      "@@/*": ["src/common/*"]
+    },
+    "allowJs": true,
+    "checkJs": false
+  },
+  "include": ["src/**/*", "tests/**/*", "vite.config.js", "uno.config.js"],
+  "exclude": ["node_modules", "dist"]
+}
