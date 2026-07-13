@@ -13,11 +13,10 @@ const settingsStore = useSettingsStore()
     <div class="app-scrollbar">
       <!-- key 采用 route.path 和 route.fullPath 有着不同的效果，大多数时候 path 更通用 -->
       <router-view v-slot="{ Component, route }">
-        <transition name="el-fade-in" mode="out-in">
-          <keep-alive :include="tagsViewStore.cachedViews">
-            <component :is="Component" :key="route.path" class="app-container-grow" />
-          </keep-alive>
-        </transition>
+        <!-- keep-alive 与 transition mode="out-in" 同用会导致缓存页切回时透明度卡在 0，页面空白 -->
+        <keep-alive :include="tagsViewStore.cachedViews">
+          <component :is="Component" :key="route.path" class="app-container-grow" />
+        </keep-alive>
       </router-view>
       <!-- 页脚 -->
       <Footer v-if="settingsStore.showFooter" />
@@ -38,14 +37,17 @@ const settingsStore = useSettingsStore()
 }
 
 .app-scrollbar {
-  flex-grow: 1;
+  flex: 1;
+  min-height: 0;
   overflow: auto;
   @extend %scrollbar;
   display: flex;
   flex-direction: column;
+
   .app-container-grow {
     flex: 1;
     min-height: 0;
+    height: 100%;
     display: flex;
     flex-direction: column;
   }

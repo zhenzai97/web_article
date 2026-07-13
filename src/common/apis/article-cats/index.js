@@ -12,7 +12,7 @@ export function getArticleCatListApi(data) {
 /** 全部启用栏目（下拉用） */
 export function getArticleCatAllApi() {
   return request({
-    url: "articleCat/list/vo",
+    url: "articleCat/list/allData",
     method: "get"
   })
 }

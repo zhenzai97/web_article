@@ -39,13 +39,25 @@ function resetTableScrollState() {
   searchCollapsed.value = false
 }
 
+const layoutRefreshKey = ref(0)
+
+function refreshLayout() {
+  layoutRefreshKey.value++
+}
+
 provide(PAGE_LAYOUT_KEY, {
   handleTableScroll,
   searchCollapsed: readonly(searchCollapsed),
-  searchCollapseDuration: SEARCH_COLLAPSE_DURATION
+  searchCollapseDuration: SEARCH_COLLAPSE_DURATION,
+  layoutRefreshKey: readonly(layoutRefreshKey)
 })
 
-onActivated(resetTableScrollState)
+onActivated(() => {
+  resetTableScrollState()
+  nextTick(() => {
+    requestAnimationFrame(refreshLayout)
+  })
+})
 </script>
 
 <template>
@@ -86,6 +98,7 @@ onActivated(resetTableScrollState)
   flex-direction: column;
   flex: 1;
   min-height: 0;
+  height: 100%;
 }
 
 .page-layout__stats {

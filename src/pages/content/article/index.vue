@@ -223,6 +223,6 @@ onMounted(loadCategories)
         </template>
       </TableList>
     </template>
-    <FormDialog ref="formDialogRef" :categories="categoryOptions" @success="tableListRef?.refresh()" />
   </PageLayout>
+  <FormDialog ref="formDialogRef" :categories="categoryOptions" @success="tableListRef?.refresh()" />
 </template>

@@ -75,9 +75,12 @@ const rootStyle = computed(() => {
   if (!props.autoHeight) return undefined
 
   const heightValue = Number(props.height)
+  if (heightValue === 100 && props.height === "100%") {
+    return undefined
+  }
+
   return {
-    height: Number.isNaN(heightValue) ? props.height : `${heightValue}px`,
-    overflow: "hidden"
+    height: Number.isNaN(heightValue) ? props.height : `${heightValue}px`
   }
 })
 
@@ -189,9 +192,19 @@ if (pageLayoutContext?.searchCollapsed) {
   })
 }
 
+if (pageLayoutContext?.layoutRefreshKey) {
+  watch(pageLayoutContext.layoutRefreshKey, () => {
+    restoreScrollAndLayout()
+  })
+}
+
 onActivated(() => {
   lastScrollTop = scrollState.value?.top ?? 0
-  restoreScrollAndLayout()
+  nextTick(() => {
+    requestAnimationFrame(() => {
+      restoreScrollAndLayout()
+    })
+  })
 })
 
 onMounted(() => {
@@ -254,6 +267,9 @@ defineExpose({ search, refresh, fetchData, recalc, clearSelection, tableRef })
   &--contain {
     display: flex;
     flex-flow: column;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
     background-color: inherit;
   }
 

@@ -1,5 +1,6 @@
 <script setup>
 import { deleteArticleCatApi, getArticleCatListApi } from "@@/apis/article-cats"
+import PageLayout from "@@/components/PageLayout/index.vue"
 import SearchForm from "@@/components/SearchForm/index.vue"
 import TableList from "@@/components/TableList/index.vue"
 import { CirclePlus } from "@element-plus/icons-vue"
@@ -69,22 +70,25 @@ function handleDelete(row) {
 </script>
 
 <template>
-  <div class="app-container">
-    <el-card shadow="never" class="search-wrapper">
+  <PageLayout>
+    <template #search>
       <SearchForm
         v-model="searchData"
         :items="searchItems"
+        cache-key="content-category-search"
         label-width="80px"
         @search="handleSearch"
         @reset="handleSearch"
       />
-    </el-card>
-    <el-card shadow="never">
-      <div class="toolbar-wrapper">
-        <el-button type="primary" :icon="CirclePlus" @click="handleAdd">
-          新增分类
-        </el-button>
-      </div>
+    </template>
+
+    <template #toolbar>
+      <el-button type="primary" :icon="CirclePlus" @click="handleAdd">
+        新增分类
+      </el-button>
+    </template>
+
+    <template #table>
       <TableList
         ref="tableListRef"
         :columns="columns"
@@ -108,23 +112,7 @@ function handleDelete(row) {
           </el-button>
         </template>
       </TableList>
-    </el-card>
-    <FormDialog ref="formDialogRef" @success="tableListRef?.refresh()" />
-  </div>
+    </template>
+  </PageLayout>
+  <FormDialog ref="formDialogRef" @success="tableListRef?.refresh()" />
 </template>
-
-<style lang="scss" scoped>
-.search-wrapper {
-  margin-bottom: 20px;
-
-  :deep(.el-card__body) {
-    padding-bottom: 2px;
-  }
-}
-
-.toolbar-wrapper {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 20px;
-}
-</style>

@@ -1,8 +1,9 @@
 <script setup>
 import { getArticleCatAllApi } from "@@/apis/article-cats"
-import { createArticleApi, getArticleDetailApi, updateArticleApi } from "@@/apis/articles"
+import { createArticleApi, updateArticleApi } from "@@/apis/articles"
+import ImageUpload from "@@/components/ImageUpload/index.vue"
 import RichEditor from "@@/components/RichEditor/index.vue"
-import { ARTICLE_STATUS_OPTIONS, ArticleStatusEnum } from "@@/constants/article"
+import { ArticleStatusEnum, ENABLE_STATUS_OPTIONS } from "@@/constants/article"
 
 const props = defineProps({
   categories: {
@@ -26,7 +27,7 @@ function initForm() {
   return {
     id: "",
     title: "",
-    cateId: "",
+    categoryId: "",
     cover: "",
     summary: "",
     content: "",
@@ -47,7 +48,7 @@ const isEdit = computed(() => !!form.value.id)
 
 const rules = {
   title: [{ required: true, message: "请输入标题", trigger: "blur" }],
-  cateId: [{ required: true, message: "请选择栏目", trigger: "change" }],
+  categoryId: [{ required: true, message: "请选择栏目", trigger: "change" }],
   content: [{ required: true, message: "请输入正文", trigger: "blur" }]
 }
 
@@ -71,30 +72,26 @@ async function loadCategories() {
 async function show(data) {
   activeTab.value = "basic"
   options.visible = true
+
   await loadCategories()
   if (data?.id) {
-    options.loading = true
-    try {
-      const { data: detail } = await getArticleDetailApi(data.id)
-      Object.assign(form.value, initForm(), {
-        id: detail.id,
-        title: detail.title,
-        cateId: detail.cateId,
-        cover: detail.cover ?? "",
-        summary: detail.summary ?? "",
-        content: detail.content ?? "",
-        author: detail.author ?? "",
-        status: detail.status ?? ArticleStatusEnum.Draft,
-        isTop: detail.isTop ?? 0,
-        isHome: detail.isHome ?? 0,
-        sort: detail.sort ?? 0,
-        tags: detail.tags ?? [],
-        publishTime: detail.publishTime ?? ""
-      })
-      options.title = "编辑文章"
-    } finally {
-      options.loading = false
-    }
+    const detail = data
+    Object.assign(form.value, initForm(), {
+      id: detail.id,
+      title: detail.title,
+      categoryId: detail.categoryId,
+      cover: detail.cover ?? "",
+      summary: detail.summary ?? "",
+      content: detail.content ?? "",
+      author: detail.author ?? "",
+      status: detail.status ?? ArticleStatusEnum.Draft,
+      isTop: detail.isTop ?? 0,
+      isHome: detail.isHome ?? 0,
+      sort: detail.sort ?? 0,
+      tags: detail.tags ?? [],
+      publishTime: detail.publishTime ?? ""
+    })
+    options.title = "编辑文章"
   } else {
     Object.assign(form.value, initForm())
     options.title = "新增文章"
@@ -111,7 +108,7 @@ function close() {
 function confirm() {
   formRef.value?.validate((valid, fields) => {
     if (!valid) {
-      const basicFields = ["title", "cateId"]
+      const basicFields = ["title", "categoryId"]
       const hasBasicError = fields && basicFields.some(key => key in fields)
       activeTab.value = hasBasicError ? "basic" : "content"
       ElMessage.error("表单校验不通过，请检查当前页签")
@@ -125,7 +122,7 @@ function confirm() {
     options.loading = true
     const payload = {
       title: form.value.title,
-      cateId: form.value.cateId,
+      categoryId: form.value.categoryId,
       cover: form.value.cover || undefined,
       summary: form.value.summary || undefined,
       content: form.value.content,
@@ -169,8 +166,8 @@ defineExpose({ show })
               <el-form-item label="标题" prop="title">
                 <el-input v-model="form.title" placeholder="请输入文章标题" />
               </el-form-item>
-              <el-form-item label="栏目" prop="cateId">
-                <el-select v-model="form.cateId" placeholder="请选择栏目" class="full-width">
+              <el-form-item label="栏目" prop="categoryId">
+                <el-select v-model="form.categoryId" placeholder="请选择栏目" class="full-width">
                   <el-option
                     v-for="item in categoryOptions"
                     :key="item.id"
@@ -180,7 +177,7 @@ defineExpose({ show })
                 </el-select>
               </el-form-item>
               <el-form-item label="封面图" prop="cover">
-                <el-input v-model="form.cover" placeholder="封面图片 URL" />
+                <ImageUpload v-model="form.cover" disabled :width="160" :height="160" />
               </el-form-item>
               <el-form-item label="摘要" prop="summary">
                 <el-input v-model="form.summary" type="textarea" :rows="3" placeholder="可选，用于列表与分享展示" />
@@ -193,7 +190,7 @@ defineExpose({ show })
                   <el-form-item label="状态" prop="status">
                     <el-select v-model="form.status" class="full-width">
                       <el-option
-                        v-for="item in ARTICLE_STATUS_OPTIONS"
+                        v-for="item in ENABLE_STATUS_OPTIONS"
                         :key="item.value"
                         :label="item.label"
                         :value="item.value"

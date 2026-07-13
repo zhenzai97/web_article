@@ -214,12 +214,21 @@ export function useTableHeight(options = {}) {
     }
   }
 
+  function refreshOnActivate() {
+    nextTick(() => {
+      requestAnimationFrame(() => {
+        bindResizeObserver()
+        executeCalc()
+      })
+    })
+  }
+
   if (autoInit) {
     onMounted(() => {
       init()
     })
 
-    onActivated(recalc)
+    onActivated(refreshOnActivate)
 
     onBeforeUnmount(() => {
       cleanup()
