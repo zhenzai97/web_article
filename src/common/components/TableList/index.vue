@@ -1,5 +1,7 @@
 <script setup>
+import { PAGE_LAYOUT_KEY } from "@@/composables/usePageLayout"
 import { usePagination } from "@@/composables/usePagination"
+import { useTableHeight } from "@@/composables/useTableHeight"
 import { omit } from "lodash-es"
 
 const props = defineProps({
@@ -18,6 +20,27 @@ const props = defineProps({
   immediate: {
     type: Boolean,
     default: true
+  },
+  autoHeight: {
+    type: Boolean,
+    default: true
+  },
+  height: {
+    type: [String, Number],
+    default: "100%"
+  },
+  hidePagination: {
+    type: Boolean,
+    default: false
+  },
+  heightOptions: {
+    type: Object,
+    default: () => ({})
+  },
+  /** 是否联动 PageLayout 筛选区折叠 */
+  syncSearchCollapse: {
+    type: Boolean,
+    default: true
   }
 })
 
@@ -26,7 +49,50 @@ const emit = defineEmits(["selectionChange"])
 const loading = ref(false)
 const tableData = ref([])
 
+const tableListRef = useTemplateRef("tableListRef")
+const tableWrapperRef = useTemplateRef("tableWrapperRef")
+const tableRef = useTemplateRef("tableRef")
+const pagerRef = useTemplateRef("pagerRef")
+
+const scrollState = ref(null)
+let lastScrollTop = 0
+
+const pageLayoutContext = inject(PAGE_LAYOUT_KEY, null)
+
 const { paginationData, handleCurrentChange, handleSizeChange } = usePagination()
+
+const { tableHeight, recalc } = useTableHeight({
+  mode: "flex",
+  tableEl: () => tableWrapperRef.value,
+  containerEl: () => tableListRef.value,
+  minHeight: 300,
+  debounceDelay: 200,
+  autoInit: props.autoHeight,
+  ...props.heightOptions
+})
+
+const rootStyle = computed(() => {
+  if (!props.autoHeight) return undefined
+
+  const heightValue = Number(props.height)
+  return {
+    height: Number.isNaN(heightValue) ? props.height : `${heightValue}px`,
+    overflow: "hidden"
+  }
+})
+
+const wrapperStyle = computed(() => {
+  if (!props.autoHeight || props.hidePagination) {
+    return { height: "100%" }
+  }
+
+  return { height: "calc(100% - 50px)" }
+})
+
+const tableHeightValue = computed(() => {
+  if (!props.autoHeight) return undefined
+  return tableHeight.value
+})
 
 function getColumnProps(column) {
   return omit(column, ["slot"])
@@ -48,7 +114,6 @@ function fetchData() {
   })
 }
 
-/** 查询：重置到第一页并刷新 */
 function search() {
   if (paginationData.current === 1) {
     fetchData()
@@ -57,9 +122,44 @@ function search() {
   }
 }
 
-/** 刷新：保持当前页 */
 function refresh() {
   fetchData()
+}
+
+function handleScroll({ scrollTop, scrollLeft }) {
+  scrollState.value = { top: scrollTop, left: scrollLeft }
+
+  if (props.syncSearchCollapse && pageLayoutContext) {
+    pageLayoutContext.handleTableScroll({
+      scrollTop,
+      delta: scrollTop - lastScrollTop
+    })
+  }
+
+  lastScrollTop = scrollTop
+}
+
+function scheduleRecalcAfterCollapse() {
+  if (!props.autoHeight) return
+
+  recalc()
+  const duration = pageLayoutContext?.searchCollapseDuration ?? 280
+  window.setTimeout(() => recalc(), duration)
+}
+
+function restoreScrollAndLayout() {
+  recalc()
+  nextTick(() => {
+    if (scrollState.value) {
+      tableRef.value?.setScrollTop(scrollState.value.top)
+      tableRef.value?.setScrollLeft(scrollState.value.left)
+    }
+    tableRef.value?.doLayout()
+  })
+}
+
+function clearSelection() {
+  tableRef.value?.clearSelection()
 }
 
 watch(
@@ -68,28 +168,73 @@ watch(
   { immediate: props.immediate }
 )
 
-defineExpose({ search, refresh, fetchData })
+watch(
+  () => loading.value,
+  (value) => {
+    if (!value && props.autoHeight) {
+      restoreScrollAndLayout()
+    }
+  }
+)
+
+watch(tableHeight, () => {
+  if (props.autoHeight) {
+    nextTick(() => tableRef.value?.doLayout())
+  }
+})
+
+if (pageLayoutContext?.searchCollapsed) {
+  watch(pageLayoutContext.searchCollapsed, () => {
+    scheduleRecalcAfterCollapse()
+  })
+}
+
+onActivated(() => {
+  lastScrollTop = scrollState.value?.top ?? 0
+  restoreScrollAndLayout()
+})
+
+onMounted(() => {
+  if (props.autoHeight) {
+    nextTick(() => {
+      requestAnimationFrame(() => recalc())
+    })
+  }
+})
+
+defineExpose({ search, refresh, fetchData, recalc, clearSelection, tableRef })
 </script>
 
 <template>
-  <div class="table-list">
-    <div class="table-wrapper">
-      <el-table
-        stripe
-        v-loading="loading"
-        :data="tableData"
-        @selection-change="rows => emit('selectionChange', rows)"
-      >
-        <template v-for="column in columns" :key="column.prop ?? column.label ?? column.type">
-          <el-table-column v-bind="getColumnProps(column)">
-            <template v-if="column.slot" #default="scope">
-              <slot :name="column.slot" v-bind="scope" />
-            </template>
-          </el-table-column>
-        </template>
-      </el-table>
+  <div
+    ref="tableListRef"
+    class="table-list"
+    :class="{ 'table-list--contain': autoHeight }"
+    :style="rootStyle"
+  >
+    <div class="table-list__wrapper" :style="wrapperStyle">
+      <div ref="tableWrapperRef" class="table-list__table">
+        <el-table
+          ref="tableRef"
+          stripe
+          v-loading="loading"
+          :data="tableData"
+          :height="tableHeightValue"
+          @scroll="handleScroll"
+          @selection-change="rows => emit('selectionChange', rows)"
+        >
+          <template v-for="column in columns" :key="column.prop ?? column.label ?? column.type">
+            <el-table-column v-bind="getColumnProps(column)">
+              <template v-if="column.slot" #default="scope">
+                <slot :name="column.slot" v-bind="scope" />
+              </template>
+            </el-table-column>
+          </template>
+        </el-table>
+      </div>
     </div>
-    <div class="pager-wrapper">
+
+    <div v-if="!hidePagination" ref="pagerRef" class="table-list__pager">
       <el-pagination
         background
         :layout="paginationData.layout"
@@ -105,12 +250,35 @@ defineExpose({ search, refresh, fetchData })
 </template>
 
 <style lang="scss" scoped>
-.table-wrapper {
-  margin-bottom: 20px;
-}
+.table-list {
+  &--contain {
+    display: flex;
+    flex-flow: column;
+    background-color: inherit;
+  }
 
-.pager-wrapper {
-  display: flex;
-  justify-content: flex-end;
+  &__wrapper {
+    display: flex;
+    flex-flow: column;
+    min-height: 0;
+  }
+
+  &__table {
+    display: flex;
+    flex-flow: column;
+    flex: 1;
+    min-height: 0;
+    height: 100px;
+    border-top: 1px solid var(--el-border-color-lighter);
+  }
+
+  &__pager {
+    flex-shrink: 0;
+    min-height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 15px;
+  }
 }
 </style>
