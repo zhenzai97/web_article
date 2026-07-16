@@ -15,7 +15,8 @@ export const homeStats = {
     enabled: 0,
     disabled: 0,
     icon: Document,
-    theme: "blue"
+    theme: "blue",
+    byCategory: []
   },
   tourism: {
     label: "文旅内容",

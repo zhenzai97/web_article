@@ -19,6 +19,7 @@ defineOptions({
   name: "ContentArticle"
 })
 
+const route = useRoute()
 const formDialogRef = useTemplateRef("formDialogRef")
 const tableListRef = useTemplateRef("tableListRef")
 
@@ -28,7 +29,7 @@ const categoryOptions = ref([])
 
 const searchData = reactive({
   title: "",
-  categoryId: "",
+  categoryId: route.query.categoryId ? String(route.query.categoryId) : "",
   status: undefined,
   isHome: undefined,
   isTop: undefined,
@@ -158,6 +159,18 @@ function handleBatchDelete() {
 }
 
 onMounted(loadCategories)
+
+watch(
+  () => route.query.categoryId,
+  (categoryId) => {
+    const nextId = categoryId ? String(categoryId) : ""
+    if (searchData.categoryId === nextId) {
+      return
+    }
+    searchData.categoryId = nextId
+    nextTick(() => tableListRef.value?.search())
+  }
+)
 </script>
 
 <template>

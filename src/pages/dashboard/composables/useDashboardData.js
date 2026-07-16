@@ -2,7 +2,6 @@ import { getDashboardOverviewApi } from "@@/apis/dashboard"
 import { TOURISM_TYPE_OPTIONS } from "@@/constants/tourism"
 import { Document, Location } from "@element-plus/icons-vue"
 import {
-  categories as fallbackCategories,
   homeStats as fallbackHomeStats,
   recentAdvertising as fallbackRecentAdvertising,
   recentArticles as fallbackRecentArticles,
@@ -10,7 +9,7 @@ import {
   weekTrend as fallbackWeekTrend
 } from "../data"
 
-function buildStats(stats = {}) {
+function buildStats(stats = {}, categories = []) {
   const tourismByType = (stats.tourismByType?.length
     ? stats.tourismByType
     : TOURISM_TYPE_OPTIONS.map(item => ({ type: item.value, label: item.label, count: 0 }))
@@ -23,7 +22,13 @@ function buildStats(stats = {}) {
       enabled: stats.articleEnabled ?? 0,
       disabled: stats.articleDisabled ?? 0,
       icon: Document,
-      theme: "blue"
+      theme: "blue",
+      byCategory: categories.map(item => ({
+        id: item.id,
+        name: item.name,
+        count: item.count ?? 0,
+        percent: item.percent ?? 0
+      }))
     },
     tourism: {
       label: "文旅内容",
@@ -76,19 +81,17 @@ export function useDashboardData() {
   const recentTourism = ref([...fallbackRecentTourism])
   const recentAdvertising = ref([...fallbackRecentAdvertising])
   const weekTrend = ref([...fallbackWeekTrend])
-  const categories = ref([...fallbackCategories])
   const useFallback = ref(false)
 
   async function loadDashboard() {
     loading.value = true
     try {
       const { data } = await getDashboardOverviewApi()
-      stats.value = buildStats(data.stats)
+      stats.value = buildStats(data.stats, data.categories || [])
       recentArticles.value = mapRecentArticles(data.recentArticles)
       recentTourism.value = mapRecentTourism(data.recentTourism)
       recentAdvertising.value = mapRecentAdvertising(data.recentAdvertising)
       weekTrend.value = data.weekTrend?.length ? data.weekTrend : fallbackWeekTrend
-      categories.value = data.categories?.length ? data.categories : []
       useFallback.value = false
     } catch {
       useFallback.value = true
@@ -97,7 +100,6 @@ export function useDashboardData() {
       recentTourism.value = []
       recentAdvertising.value = []
       weekTrend.value = [...fallbackWeekTrend]
-      categories.value = []
     } finally {
       loading.value = false
     }
@@ -112,7 +114,6 @@ export function useDashboardData() {
     recentTourism,
     recentAdvertising,
     weekTrend,
-    categories,
     useFallback,
     reload: loadDashboard
   }

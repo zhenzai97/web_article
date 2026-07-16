@@ -2,7 +2,6 @@
 import { useDashboardData } from "../composables/useDashboardData"
 import { useHomeGreeting } from "../composables/useHomeGreeting"
 import { quickLinks, workflowSteps } from "../data"
-import CategoryPanel from "./CategoryPanel.vue"
 import HomeHero from "./HomeHero.vue"
 import HomeStats from "./HomeStats.vue"
 import PublishTrendPanel from "./PublishTrendPanel.vue"
@@ -18,7 +17,6 @@ const {
   recentTourism,
   recentAdvertising,
   weekTrend,
-  categories,
   useFallback
 } = useDashboardData()
 
@@ -55,7 +53,6 @@ const { greeting, displayName, todaySummary } = useHomeGreeting(stats, weekTrend
 
       <el-col :xs="24" :lg="8">
         <QuickLinksPanel :links="quickLinks" />
-        <CategoryPanel :data="categories" />
       </el-col>
     </el-row>
   </div>

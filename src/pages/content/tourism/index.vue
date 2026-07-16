@@ -14,6 +14,7 @@ defineOptions({
   name: "TourismContent"
 })
 
+const route = useRoute()
 const formDialogRef = useTemplateRef("formDialogRef")
 const tableListRef = useTemplateRef("tableListRef")
 
@@ -21,7 +22,7 @@ const tableLoading = ref(false)
 
 const searchData = reactive({
   name: "",
-  type: "",
+  type: route.query.type ? String(route.query.type) : "",
   status: undefined,
   isRecommend: undefined,
   cStartTime: undefined,
@@ -104,6 +105,18 @@ function handleDelete(row) {
     })
   })
 }
+
+watch(
+  () => route.query.type,
+  (type) => {
+    const nextType = type ? String(type) : ""
+    if (searchData.type === nextType) {
+      return
+    }
+    searchData.type = nextType
+    nextTick(() => tableListRef.value?.search())
+  }
+)
 </script>
 
 <template>
