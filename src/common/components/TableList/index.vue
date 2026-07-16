@@ -2,6 +2,7 @@
 import { PAGE_LAYOUT_KEY } from "@@/composables/usePageLayout"
 import { usePagination } from "@@/composables/usePagination"
 import { useTableHeight } from "@@/composables/useTableHeight"
+import { sanitizeSearchParams } from "@@/utils/sanitize-search-params"
 import { omit } from "lodash-es"
 
 const props = defineProps({
@@ -44,7 +45,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(["selectionChange"])
+const emit = defineEmits(["selectionChange", "loadingChange"])
 
 const loading = ref(false)
 const tableData = ref([])
@@ -106,7 +107,7 @@ function fetchData() {
   props.api({
     current: paginationData.current,
     pageSize: paginationData.pageSize,
-    ...props.params
+    ...sanitizeSearchParams(props.params)
   }).then(({ data }) => {
     paginationData.total = Number(data.total)
     tableData.value = data.records
@@ -171,6 +172,10 @@ watch(
   { immediate: props.immediate }
 )
 
+watch(loading, (value) => {
+  emit("loadingChange", value)
+}, { immediate: true })
+
 watch(
   () => loading.value,
   (value) => {
@@ -215,7 +220,7 @@ onMounted(() => {
   }
 })
 
-defineExpose({ search, refresh, fetchData, recalc, clearSelection, tableRef })
+defineExpose({ search, refresh, fetchData, recalc, clearSelection, tableRef, loading })
 </script>
 
 <template>

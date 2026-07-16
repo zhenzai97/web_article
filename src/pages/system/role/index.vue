@@ -1,8 +1,10 @@
 <script setup>
 import { deleteRoleApi, getRoleListApi } from "@@/apis/roles"
+import PageLayout from "@@/components/PageLayout/index.vue"
 import SearchForm from "@@/components/SearchForm/index.vue"
 import TableList from "@@/components/TableList/index.vue"
 import { CirclePlus, Delete } from "@element-plus/icons-vue"
+import AssignMenuDialog from "./components/AssignMenuDialog.vue"
 import FormDialog from "./components/FormDialog.vue"
 
 defineOptions({
@@ -10,7 +12,10 @@ defineOptions({
 })
 
 const formDialogRef = useTemplateRef("formDialogRef")
+const assignMenuDialogRef = useTemplateRef("assignMenuDialogRef")
 const tableListRef = useTemplateRef("tableListRef")
+
+const tableLoading = ref(false)
 
 const searchData = reactive({
   roleName: ""
@@ -28,7 +33,7 @@ const columns = [
   { prop: "status", label: "状态", align: "center", slot: "status", minWidth: 80 },
   { prop: "sort", label: "排序", align: "center", minWidth: 80 },
   { prop: "createTime", label: "创建时间", align: "center", minWidth: 160 },
-  { label: "操作", width: 150, align: "center", fixed: "right", slot: "action" }
+  { label: "操作", width: 240, align: "center", fixed: "right", slot: "action" }
 ]
 
 function handleSearch() {
@@ -41,6 +46,10 @@ function handleAdd() {
 
 function handleUpdate(row) {
   formDialogRef.value?.show(row)
+}
+
+function handleAssignMenu(row) {
+  assignMenuDialogRef.value?.show(row)
 }
 
 function handleDelete(row) {
@@ -58,32 +67,37 @@ function handleDelete(row) {
 </script>
 
 <template>
-  <div class="app-container">
-    <el-card shadow="never" class="search-wrapper">
+  <PageLayout>
+    <template #search>
       <SearchForm
         v-model="searchData"
         :items="searchItems"
+        :loading="tableLoading"
+        cache-key="system-role-search"
         label-width="80px"
         @search="handleSearch"
         @reset="handleSearch"
       />
-    </el-card>
-    <el-card shadow="never">
-      <div class="toolbar-wrapper">
-        <div>
-          <el-button type="primary" :icon="CirclePlus" @click="handleAdd">
-            新增角色
-          </el-button>
-          <el-button type="danger" :icon="Delete">
-            批量删除
-          </el-button>
-        </div>
+    </template>
+
+    <template #toolbar>
+      <div>
+        <el-button type="primary" :icon="CirclePlus" @click="handleAdd">
+          新增角色
+        </el-button>
+        <el-button type="danger" :icon="Delete">
+          批量删除
+        </el-button>
       </div>
+    </template>
+
+    <template #table>
       <TableList
         ref="tableListRef"
         :columns="columns"
         :api="getRoleListApi"
         :params="searchData"
+        @loading-change="tableLoading = $event"
       >
         <template #status="{ row }">
           <el-tag v-if="row.status === 1" type="success" effect="plain" disable-transitions>
@@ -97,27 +111,23 @@ function handleDelete(row) {
           <el-button type="primary" text bg size="small" @click="handleUpdate(row)">
             修改
           </el-button>
+          <el-button
+            type="primary"
+            text
+            bg
+            size="small"
+            :disabled="row.isSuperAdmin === 1"
+            @click="handleAssignMenu(row)"
+          >
+            分配菜单
+          </el-button>
           <el-button type="danger" text bg size="small" @click="handleDelete(row)">
             删除
           </el-button>
         </template>
       </TableList>
-    </el-card>
-    <FormDialog ref="formDialogRef" @success="tableListRef?.refresh()" />
-  </div>
+    </template>
+  </PageLayout>
+  <FormDialog ref="formDialogRef" @success="tableListRef?.refresh()" />
+  <AssignMenuDialog ref="assignMenuDialogRef" />
 </template>
-
-<style lang="scss" scoped>
-.search-wrapper {
-  margin-bottom: 20px;
-  :deep(.el-card__body) {
-    padding-bottom: 2px;
-  }
-}
-
-.toolbar-wrapper {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 20px;
-}
-</style>

@@ -26,10 +26,18 @@ export function updateMenuApi(data) {
   })
 }
 
-/** 查询菜单树 */
+/** 查询菜单树（后台管理全量） */
 export function getMenuTreeApi() {
   return request({
     url: "menu/list/tree/vo",
+    method: "get"
+  })
+}
+
+/** 当前登录用户可见菜单树（按角色） */
+export function getMyMenuTreeApi() {
+  return request({
+    url: "menu/list/my/tree",
     method: "get"
   })
 }

@@ -1,4 +1,4 @@
-import { getMenuTreeApi } from "@@/apis/menus"
+import { getMyMenuTreeApi } from "@@/apis/menus"
 import { setRouteChange } from "@@/composables/useRouteListener"
 import { useTitle } from "@@/composables/useTitle"
 import { getToken } from "@@/utils/local-storage"
@@ -34,7 +34,7 @@ export function registerNavigationGuard(router) {
     try {
       await userStore.getInfo()
       const roles = userStore.roles
-      const { data: menus } = await getMenuTreeApi()
+      const { data: menus } = await getMyMenuTreeApi()
       permissionStore.setMenuRoutes(menus, roles)
       permissionStore.addRoutes.forEach(route => router.addRoute(route))
       return { ...to, replace: true }

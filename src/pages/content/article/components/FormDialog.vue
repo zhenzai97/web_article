@@ -34,6 +34,7 @@ function initForm() {
     author: "",
     status: ArticleStatusEnum.Draft,
     isTop: 0,
+    readNum: 0,
     isHome: 0,
     sort: 0,
     tags: [],
@@ -87,6 +88,7 @@ async function show(data) {
       status: detail.status ?? ArticleStatusEnum.Draft,
       isTop: detail.isTop ?? 0,
       isHome: detail.isHome ?? 0,
+      readNum: detail.readNum ?? 0,
       sort: detail.sort ?? 0,
       tags: detail.tags ?? [],
       publishTime: detail.publishTime ?? ""
@@ -130,6 +132,7 @@ function confirm() {
       status: form.value.status,
       isTop: form.value.isTop,
       isHome: form.value.isHome,
+      readNum: form.value.readNum,
       sort: form.value.sort,
       tags: form.value.tags.length ? form.value.tags : undefined,
       publishTime: form.value.publishTime || undefined
@@ -182,8 +185,11 @@ defineExpose({ show })
               <el-form-item label="摘要" prop="summary">
                 <el-input v-model="form.summary" type="textarea" :rows="3" placeholder="可选，用于列表与分享展示" />
               </el-form-item>
-              <el-form-item label="作者" prop="author">
+              <!-- <el-form-item label="作者" prop="author">
                 <el-input v-model="form.author" placeholder="可选" />
+              </el-form-item> -->
+              <el-form-item label="阅读量" prop="readNum">
+                <el-input-number v-model="form.readNum" :min="0" controls-position="right" class="full-width" />
               </el-form-item>
               <el-row :gutter="16">
                 <el-col :span="12">

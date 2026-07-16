@@ -27,8 +27,14 @@ const rangeValue = computed({
       model.value[endKey] = undefined
       return
     }
-    model.value[startKey] = val[0]
-    model.value[endKey] = val[1]
+    const [start, end] = val
+    if (!start || !end) {
+      model.value[startKey] = undefined
+      model.value[endKey] = undefined
+      return
+    }
+    model.value[startKey] = start
+    model.value[endKey] = end
   }
 })
 </script>

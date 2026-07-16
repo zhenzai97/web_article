@@ -1,5 +1,8 @@
 <script setup>
-import { deleteArticleCatApi, getArticleCatListApi } from "@@/apis/article-cats"
+import {
+  deleteAdvertisingSpaceApi,
+  getAdvertisingSpaceListApi
+} from "@@/apis/advertising-space"
 import PageLayout from "@@/components/PageLayout/index.vue"
 import SearchForm from "@@/components/SearchForm/index.vue"
 import TableList from "@@/components/TableList/index.vue"
@@ -7,7 +10,7 @@ import { CirclePlus } from "@element-plus/icons-vue"
 import FormDialog from "./components/FormDialog.vue"
 
 defineOptions({
-  name: "ContentCategory"
+  name: "AdvertisingSpace"
 })
 
 const formDialogRef = useTemplateRef("formDialogRef")
@@ -16,14 +19,12 @@ const tableListRef = useTemplateRef("tableListRef")
 const tableLoading = ref(false)
 
 const searchData = reactive({
-  sign: "",
   name: "",
   status: undefined
 })
 
 const searchItems = [
-  { label: "分类标识", component: "input", value: "sign", placeholder: "如 xhdt" },
-  { label: "分类名称", component: "input", value: "name" },
+  { label: "运营位名称", component: "input", value: "name" },
   {
     label: "状态",
     component: "select",
@@ -36,12 +37,12 @@ const searchItems = [
 ]
 
 const columns = [
-  { prop: "sign", label: "分类标识", align: "center", minWidth: 120 },
-  { prop: "name", label: "分类名称", align: "center", minWidth: 140 },
-  { prop: "sort", label: "排序", align: "center", width: 80 },
+  { prop: "sign", label: "运营位标识", align: "center", minWidth: 120 },
+  { prop: "name", label: "运营位名称", align: "center", minWidth: 140 },
   { prop: "status", label: "状态", align: "center", slot: "status", width: 90 },
   { prop: "remark", label: "备注", align: "center", minWidth: 160 },
   { prop: "createTime", label: "创建时间", align: "center", minWidth: 160 },
+  { prop: "updateTime", label: "更新时间", align: "center", minWidth: 160 },
   { label: "操作", width: 150, align: "center", fixed: "right", slot: "action" }
 ]
 
@@ -58,12 +59,12 @@ function handleUpdate(row) {
 }
 
 function handleDelete(row) {
-  ElMessageBox.confirm(`正在删除分类：${row.name}，确认删除？`, "提示", {
+  ElMessageBox.confirm(`正在删除运营位：${row.name}，确认删除？`, "提示", {
     confirmButtonText: "确定",
     cancelButtonText: "取消",
     type: "warning"
   }).then(() => {
-    deleteArticleCatApi(row.id).then(() => {
+    deleteAdvertisingSpaceApi(row.id).then(() => {
       ElMessage.success("删除成功")
       tableListRef.value?.refresh()
     })
@@ -78,8 +79,8 @@ function handleDelete(row) {
         v-model="searchData"
         :items="searchItems"
         :loading="tableLoading"
-        cache-key="content-category-search"
-        label-width="80px"
+        cache-key="operation-advertising-space-search"
+        label-width="100px"
         @search="handleSearch"
         @reset="handleSearch"
       />
@@ -87,7 +88,7 @@ function handleDelete(row) {
 
     <template #toolbar>
       <el-button type="primary" :icon="CirclePlus" @click="handleAdd">
-        新增分类
+        新增运营位
       </el-button>
     </template>
 
@@ -95,7 +96,7 @@ function handleDelete(row) {
       <TableList
         ref="tableListRef"
         :columns="columns"
-        :api="getArticleCatListApi"
+        :api="getAdvertisingSpaceListApi"
         :params="searchData"
         @loading-change="tableLoading = $event"
       >

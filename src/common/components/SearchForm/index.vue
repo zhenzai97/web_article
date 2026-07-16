@@ -1,4 +1,5 @@
 <script setup>
+import { resetDateRangeFields } from "@@/utils/sanitize-search-params"
 import { Refresh, Search, Setting } from "@element-plus/icons-vue"
 import FilterConfigDialog from "./components/FilterConfigDialog.vue"
 import { useFilterLayout } from "./composables/useFilterLayout"
@@ -34,6 +35,11 @@ const props = defineProps({
   actionSpan: {
     type: Number,
     default: 8
+  },
+  /** 查询/重置按钮 loading */
+  loading: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -61,6 +67,7 @@ function handleSearch() {
 }
 
 function handleReset() {
+  resetDateRangeFields(model.value, props.items)
   formRef.value?.resetFields()
   emit("reset")
 }
@@ -85,10 +92,10 @@ defineExpose({ reset: handleReset })
       </el-col>
       <el-col :span="actionSpan">
         <el-form-item label-width="0">
-          <el-button type="primary" :icon="Search" @click="handleSearch">
+          <el-button type="primary" :icon="Search" :loading="loading" @click="handleSearch">
             查询
           </el-button>
-          <el-button :icon="Refresh" @click="handleReset">
+          <el-button :icon="Refresh" :loading="loading" @click="handleReset">
             重置
           </el-button>
           <el-button
