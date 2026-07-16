@@ -40,7 +40,7 @@ const chartOption = computed(() => ({ tooltip: {
       }
     },
     data: props.data.map(item => ({
-      name,
+      name: item.name,
       value: item.count
     }))
   }
@@ -48,5 +48,19 @@ const chartOption = computed(() => ({ tooltip: {
 </script>
 
 <template>
-  <EChart :option="chartOption" height="280px" />
+  <div v-if="!data.length" class="empty-tip">
+    暂无分类数据
+  </div>
+  <EChart v-else :option="chartOption" height="280px" />
 </template>
+
+<style lang="scss" scoped>
+.empty-tip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  font-size: 13px;
+  color: var(--el-text-color-secondary);
+}
+</style>

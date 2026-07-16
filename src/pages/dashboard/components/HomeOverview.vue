@@ -2,24 +2,27 @@
 import { useDashboardData } from "../composables/useDashboardData"
 import { useHomeGreeting } from "../composables/useHomeGreeting"
 import { quickLinks, workflowSteps } from "../data"
-import ActivityFeed from "./ActivityFeed.vue"
 import CategoryPanel from "./CategoryPanel.vue"
 import HomeHero from "./HomeHero.vue"
 import HomeStats from "./HomeStats.vue"
 import PublishTrendPanel from "./PublishTrendPanel.vue"
 import QuickLinksPanel from "./QuickLinksPanel.vue"
+import RecentAdvertisingPanel from "./RecentAdvertisingPanel.vue"
 import RecentArticlesPanel from "./RecentArticlesPanel.vue"
+import RecentTourismPanel from "./RecentTourismPanel.vue"
 
-const { greeting, displayName, todaySummary } = useHomeGreeting()
 const {
   loading,
   stats,
   recentArticles,
+  recentTourism,
+  recentAdvertising,
   weekTrend,
   categories,
-  activities,
   useFallback
 } = useDashboardData()
+
+const { greeting, displayName, todaySummary } = useHomeGreeting(stats, weekTrend)
 </script>
 
 <template>
@@ -27,10 +30,10 @@ const {
     <el-alert
       v-if="useFallback"
       class="fallback-tip"
-      type="info"
+      type="warning"
       :closable="false"
       show-icon
-      title="工作台展示演示数据，接入 article/dashboard/overview 接口后将显示真实统计"
+      title="工作台数据加载失败，请确认已登录且后端已提供 /dashboard/overview"
     />
 
     <HomeHero
@@ -45,13 +48,14 @@ const {
     <el-row :gutter="16" class="main-row">
       <el-col :xs="24" :lg="16">
         <RecentArticlesPanel :articles="recentArticles" />
+        <RecentTourismPanel :list="recentTourism" />
+        <RecentAdvertisingPanel :list="recentAdvertising" />
         <PublishTrendPanel :data="weekTrend" />
       </el-col>
 
       <el-col :xs="24" :lg="8">
-        <ActivityFeed :activities="activities" />
-        <CategoryPanel :data="categories" />
         <QuickLinksPanel :links="quickLinks" />
+        <CategoryPanel :data="categories" />
       </el-col>
     </el-row>
   </div>

@@ -13,8 +13,8 @@ defineProps({
   <div class="panel panel--chart">
     <div class="panel-header">
       <div>
-        <h2>近 7 日发布趋势</h2>
-        <p>每日发布文章数量</p>
+        <h2>近 7 日新增趋势</h2>
+        <p>每日新建文章数量</p>
       </div>
     </div>
     <PublishTrendChart :data="data" />

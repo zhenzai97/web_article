@@ -1,10 +1,11 @@
 <script setup>
 import OptionLabel from "@@/components/OptionLabel/index.vue"
 import { ENABLE_STATUS_OPTIONS } from "@@/constants/article"
+import { TOURISM_TYPE_OPTIONS } from "@@/constants/tourism"
 import { ArrowRight } from "@element-plus/icons-vue"
 
 defineProps({
-  articles: {
+  list: {
     type: Array,
     required: true
   }
@@ -15,25 +16,28 @@ defineProps({
   <div class="panel">
     <div class="panel-header">
       <div>
-        <h2>最近文章</h2>
-        <p>按更新时间倒序</p>
+        <h2>最近文旅</h2>
+        <p>农产品 / 品牌 / 景点等</p>
       </div>
-      <router-link to="/content/article" class="more-link">
+      <router-link to="/content/tourism" class="more-link">
         查看全部
         <el-icon class="el-icon--right">
           <ArrowRight />
         </el-icon>
       </router-link>
     </div>
-    <el-table :data="articles" stripe empty-text="暂无文章">
-      <el-table-column prop="title" label="标题" min-width="180" show-overflow-tooltip />
-      <el-table-column prop="category" label="分类" width="110" />
+    <el-table :data="list" stripe empty-text="暂无文旅内容">
+      <el-table-column prop="name" label="名称" min-width="140" show-overflow-tooltip />
+      <el-table-column label="类型" width="100" align="center">
+        <template #default="{ row }">
+          <OptionLabel :options="TOURISM_TYPE_OPTIONS" :value="row.type" />
+        </template>
+      </el-table-column>
       <el-table-column label="状态" width="80" align="center">
         <template #default="{ row }">
           <OptionLabel :options="ENABLE_STATUS_OPTIONS" :value="row.status" />
         </template>
       </el-table-column>
-      <el-table-column prop="views" label="阅读" width="70" align="center" />
       <el-table-column prop="updateTime" label="更新时间" width="160" />
     </el-table>
   </div>

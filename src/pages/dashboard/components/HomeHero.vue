@@ -32,15 +32,20 @@ defineProps({
           内容工作台
         </h1>
         <p class="hero-desc">
-          本周已发布 {{ summary.publish }} 篇，还有 {{ summary.pending }} 篇待审核、{{ summary.draft }} 篇草稿待处理。
+          文章共 {{ summary.articleTotal }} 篇（启用 {{ summary.articleEnabled }} / 禁用 {{ summary.articleDisabled }}），
+          文旅内容 {{ summary.tourismTotal }} 条；本周新增文章 {{ summary.weekNew }} 篇。
         </p>
         <div class="hero-actions">
-          <el-button type="primary" :icon="Plus" disabled>
-            写新文章
-          </el-button>
-          <el-button :icon="FolderOpened" disabled>
-            分类管理
-          </el-button>
+          <router-link to="/content/article">
+            <el-button type="primary" :icon="Plus">
+              文章管理
+            </el-button>
+          </router-link>
+          <router-link to="/content/category">
+            <el-button :icon="FolderOpened">
+              栏目管理
+            </el-button>
+          </router-link>
         </div>
       </div>
       <div class="hero-workflow">

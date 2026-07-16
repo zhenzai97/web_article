@@ -1,7 +1,11 @@
 import { useUserStore } from "@/pinia/stores/user"
-import { homeStats, weekTrend } from "../data"
+import { homeStats as fallbackStats, weekTrend as fallbackWeekTrend } from "../data"
 
-export function useHomeGreeting() {
+/**
+ * @param {import("vue").Ref|object} [statsSource] 工作台统计（优先用真实数据）
+ * @param {import("vue").Ref|Array} [weekTrendSource] 近 7 日趋势
+ */
+export function useHomeGreeting(statsSource, weekTrendSource) {
   const userStore = useUserStore()
 
   const greeting = computed(() => {
@@ -13,11 +17,21 @@ export function useHomeGreeting() {
 
   const displayName = computed(() => userStore.username || "管理员")
 
-  const todaySummary = computed(() => ({
-    publish: weekTrend.reduce((sum, item) => sum + item.value, 0),
-    pending: homeStats[3].value,
-    draft: homeStats[1].value
-  }))
+  const todaySummary = computed(() => {
+    const stats = unref(statsSource) || fallbackStats
+    const trend = unref(weekTrendSource) || fallbackWeekTrend
+    const weekNew = Array.isArray(trend)
+      ? trend.reduce((sum, item) => sum + (Number(item.value) || 0), 0)
+      : 0
+
+    return {
+      articleTotal: stats.article?.total ?? 0,
+      articleEnabled: stats.article?.enabled ?? 0,
+      articleDisabled: stats.article?.disabled ?? 0,
+      tourismTotal: stats.tourism?.total ?? 0,
+      weekNew
+    }
+  })
 
   return { greeting, displayName, todaySummary }
 }

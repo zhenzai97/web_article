@@ -70,10 +70,10 @@ export function offlineArticleApi(id) {
   })
 }
 
-/** 工作台概览数据 */
+/** 工作台概览数据（兼容旧调用，转发至 dashboard/overview） */
 export function getArticleDashboardApi() {
   return request({
-    url: "article/dashboard/overview",
+    url: "dashboard/overview",
     method: "get"
   })
 }
