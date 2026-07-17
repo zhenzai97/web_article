@@ -42,6 +42,11 @@ const props = defineProps({
   syncSearchCollapse: {
     type: Boolean,
     default: true
+  },
+  /** 默认每页条数 */
+  pageSize: {
+    type: Number,
+    default: 10
   }
 })
 
@@ -60,7 +65,9 @@ let lastScrollTop = 0
 
 const pageLayoutContext = inject(PAGE_LAYOUT_KEY, null)
 
-const { paginationData, handleCurrentChange, handleSizeChange } = usePagination()
+const { paginationData, handleCurrentChange, handleSizeChange } = usePagination({
+  pageSize: props.pageSize
+})
 
 const { tableHeight, recalc } = useTableHeight({
   mode: "flex",

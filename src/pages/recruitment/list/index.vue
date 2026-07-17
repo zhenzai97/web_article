@@ -11,6 +11,7 @@ import {
   WORKING_HOURS_OPTIONS
 } from "@@/constants/recruitment"
 import { CirclePlus } from "@element-plus/icons-vue"
+import ApplicantListDialog from "./components/ApplicantListDialog.vue"
 import FormDialog from "./components/FormDialog.vue"
 
 defineOptions({
@@ -18,6 +19,7 @@ defineOptions({
 })
 
 const formDialogRef = useTemplateRef("formDialogRef")
+const applicantListDialogRef = useTemplateRef("applicantListDialogRef")
 const tableListRef = useTemplateRef("tableListRef")
 
 const tableLoading = ref(false)
@@ -89,6 +91,7 @@ const columns = [
   { prop: "salaryRange", label: "薪资", align: "center", minWidth: 110 },
   { prop: "workingHours", label: "经验", align: "center", width: 100 },
   { prop: "qualification", label: "学历", align: "center", width: 110 },
+  { prop: "applicantCount", label: "应聘人数", align: "center", slot: "applicantCount", width: 100 },
   { prop: "status", label: "状态", align: "center", slot: "status", width: 70 },
   { prop: "sort", label: "排序", align: "center", width: 70 },
   { prop: "createTime", label: "创建时间", align: "center", minWidth: 160 },
@@ -128,6 +131,10 @@ function handleDelete(row) {
       tableListRef.value?.refresh()
     })
   })
+}
+
+function handleApplicantList(row) {
+  applicantListDialogRef.value?.show(row)
 }
 </script>
 
@@ -173,8 +180,14 @@ function handleDelete(row) {
         :columns="columns"
         :api="getRecruitmentListApi"
         :params="searchData"
+        :page-size="50"
         @loading-change="tableLoading = $event"
       >
+        <template #applicantCount="{ row }">
+          <el-button type="primary" link @click="handleApplicantList(row)">
+            {{ row.applicantCount ?? 0 }}
+          </el-button>
+        </template>
         <template #status="{ row }">
           <OptionLabel :options="ENABLE_STATUS_OPTIONS" :value="row.status" />
         </template>
@@ -190,6 +203,7 @@ function handleDelete(row) {
     </template>
   </PageLayout>
   <FormDialog ref="formDialogRef" @success="tableListRef?.refresh()" />
+  <ApplicantListDialog ref="applicantListDialogRef" />
 </template>
 
 <style lang="scss" scoped>
