@@ -130,12 +130,31 @@ function refresh() {
   fetchData()
 }
 
+function getTableBodyWrap() {
+  const root = tableRef.value?.$el
+  if (!root) return null
+  return root.querySelector(".el-scrollbar__wrap")
+    || root.querySelector(".el-table__body-wrapper")
+}
+
+function isTableScrollable() {
+  const wrap = getTableBodyWrap()
+  if (!wrap) return false
+  return wrap.scrollHeight > wrap.clientHeight + 5
+}
+
+function reportTableScrollable() {
+  if (!props.syncSearchCollapse || !pageLayoutContext?.notifyTableScrollable) return
+  pageLayoutContext.notifyTableScrollable(isTableScrollable())
+}
+
 function handleScroll({ scrollTop, scrollLeft }) {
   scrollState.value = { top: scrollTop, left: scrollLeft }
 
   if (props.syncSearchCollapse && pageLayoutContext) {
     pageLayoutContext.handleTableScroll({
       scrollTop,
+      scrollable: isTableScrollable(),
       delta: scrollTop - lastScrollTop
     })
   }
@@ -148,7 +167,10 @@ function scheduleRecalcAfterCollapse() {
 
   recalc()
   const duration = pageLayoutContext?.searchCollapseDuration ?? 280
-  window.setTimeout(() => recalc(), duration)
+  window.setTimeout(() => {
+    recalc()
+    nextTick(() => reportTableScrollable())
+  }, duration)
 }
 
 function restoreScrollAndLayout() {
@@ -159,6 +181,7 @@ function restoreScrollAndLayout() {
       tableRef.value?.setScrollLeft(scrollState.value.left)
     }
     tableRef.value?.doLayout()
+    reportTableScrollable()
   })
 }
 

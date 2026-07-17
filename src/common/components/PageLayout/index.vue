@@ -19,24 +19,72 @@ const SCROLL_THRESHOLD = 5
 const SEARCH_COLLAPSE_DURATION = 280
 
 let lastTableScrollTop = 0
+/** 折叠/展开动画期间忽略表格滚动，避免高度变化导致回弹 */
+let scrollLock = false
+let scrollLockTimer = 0
 
-function handleTableScroll({ scrollTop }) {
-  if (!collapseSearchOnTableScroll) return
+function lockScrollDuringCollapse() {
+  scrollLock = true
+  window.clearTimeout(scrollLockTimer)
+  scrollLockTimer = window.setTimeout(() => {
+    scrollLock = false
+  }, SEARCH_COLLAPSE_DURATION + 80)
+}
+
+function expandSearch() {
+  if (!searchCollapsed.value) return
+  searchCollapsed.value = false
+  lastTableScrollTop = 0
+  lockScrollDuringCollapse()
+  refreshLayout()
+}
+
+/**
+ * @param {{ scrollTop: number, scrollable?: boolean }} payload
+ * scrollable=false 时禁止收起，并在已收起时自动展开（表格不够高无法上滚找回筛选）
+ */
+function handleTableScroll({ scrollTop, scrollable }) {
+  if (!collapseSearchOnTableScroll || scrollLock) return
+
+  if (scrollable === false) {
+    if (searchCollapsed.value) {
+      expandSearch()
+    }
+    lastTableScrollTop = scrollTop
+    return
+  }
 
   const delta = scrollTop - lastTableScrollTop
+  let nextCollapsed = searchCollapsed.value
 
-  if (scrollTop <= SCROLL_THRESHOLD) {
-    searchCollapsed.value = false
-  } else if (delta > SCROLL_THRESHOLD) {
-    searchCollapsed.value = true
+  // 仅在主动上滚到顶部时展开，避免高度变化后的伪滚动再次触发折叠
+  if (scrollTop <= SCROLL_THRESHOLD && delta <= 0) {
+    nextCollapsed = false
+  } else if (delta > SCROLL_THRESHOLD && scrollTop > SCROLL_THRESHOLD) {
+    nextCollapsed = true
+  }
+
+  if (nextCollapsed !== searchCollapsed.value) {
+    searchCollapsed.value = nextCollapsed
+    lockScrollDuringCollapse()
   }
 
   lastTableScrollTop = scrollTop
 }
 
+/** 表格高度重算后回调：内容不足以滚动时强制展开筛选 */
+function notifyTableScrollable(scrollable) {
+  if (!collapseSearchOnTableScroll) return
+  if (!scrollable && searchCollapsed.value) {
+    expandSearch()
+  }
+}
+
 function resetTableScrollState() {
   lastTableScrollTop = 0
   searchCollapsed.value = false
+  scrollLock = false
+  window.clearTimeout(scrollLockTimer)
 }
 
 const layoutRefreshKey = ref(0)
@@ -47,6 +95,8 @@ function refreshLayout() {
 
 provide(PAGE_LAYOUT_KEY, {
   handleTableScroll,
+  notifyTableScrollable,
+  expandSearch,
   searchCollapsed: readonly(searchCollapsed),
   searchCollapseDuration: SEARCH_COLLAPSE_DURATION,
   layoutRefreshKey: readonly(layoutRefreshKey)
@@ -57,6 +107,10 @@ onActivated(() => {
   nextTick(() => {
     requestAnimationFrame(refreshLayout)
   })
+})
+
+onBeforeUnmount(() => {
+  window.clearTimeout(scrollLockTimer)
 })
 </script>
 
@@ -79,6 +133,15 @@ onActivated(() => {
     </div>
 
     <el-card shadow="never" class="page-layout__main">
+      <div
+        v-if="$slots.search && searchCollapsed"
+        class="page-layout__search-expand"
+      >
+        <el-button type="primary" text bg size="small" @click="expandSearch">
+          展开筛选
+        </el-button>
+      </div>
+
       <div v-if="$slots.toolbar" class="page-layout__toolbar">
         <slot name="toolbar" />
       </div>
@@ -144,6 +207,11 @@ onActivated(() => {
     display: flex;
     flex-direction: column;
   }
+}
+
+.page-layout__search-expand {
+  flex-shrink: 0;
+  margin-bottom: 12px;
 }
 
 .page-layout__toolbar {
