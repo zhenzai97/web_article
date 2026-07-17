@@ -39,6 +39,21 @@ const searchData = reactive({
   upEndTime: undefined
 })
 
+/** 审核状态快捷筛选：全部 + 待审核 / 已通过 / 已拒绝 */
+const examineStatusFilterOptions = [
+  { label: "全部", value: "" },
+  ...EXAMINE_STATUS_OPTIONS
+]
+
+const examineStatusFilter = computed({
+  get: () => (searchData.examineStatus === undefined || searchData.examineStatus === null
+    ? ""
+    : searchData.examineStatus),
+  set: (value) => {
+    searchData.examineStatus = value === "" ? undefined : value
+  }
+})
+
 const searchItems = [
   { label: "名称", component: "input", value: "name" },
   { label: "简称/昵称", component: "input", value: "nickname" },
@@ -54,12 +69,6 @@ const searchItems = [
     component: "select",
     value: "vip",
     options: VIP_OPTIONS
-  },
-  {
-    label: "审核状态",
-    component: "select",
-    value: "examineStatus",
-    options: EXAMINE_STATUS_OPTIONS
   },
   {
     label: "状态",
@@ -108,6 +117,15 @@ function handleSearch() {
   tableListRef.value?.search()
 }
 
+function handleExamineStatusChange() {
+  handleSearch()
+}
+
+function handleReset() {
+  searchData.examineStatus = undefined
+  handleSearch()
+}
+
 function handleAdd() {
   formDialogRef.value?.show()
 }
@@ -133,15 +151,31 @@ function handleDelete(row) {
 <template>
   <PageLayout>
     <template #search>
-      <SearchForm
-        v-model="searchData"
-        :items="searchItems"
-        :loading="tableLoading"
-        cache-key="operation-company-search"
-        label-width="80px"
-        @search="handleSearch"
-        @reset="handleSearch"
-      />
+      <div class="company-search">
+        <el-radio-group
+          v-model="examineStatusFilter"
+          class="examine-status-filter"
+          @change="handleExamineStatusChange"
+        >
+          <el-radio-button
+            v-for="item in examineStatusFilterOptions"
+            :key="String(item.value)"
+            :value="item.value"
+          >
+            {{ item.label }}
+          </el-radio-button>
+        </el-radio-group>
+
+        <SearchForm
+          v-model="searchData"
+          :items="searchItems"
+          :loading="tableLoading"
+          cache-key="operation-company-search"
+          label-width="80px"
+          @search="handleSearch"
+          @reset="handleReset"
+        />
+      </div>
     </template>
 
     <template #toolbar>
@@ -192,3 +226,15 @@ function handleDelete(row) {
   </PageLayout>
   <FormDialog ref="formDialogRef" @success="tableListRef?.refresh()" />
 </template>
+
+<style lang="scss" scoped>
+.company-search {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.examine-status-filter {
+  flex-shrink: 0;
+}
+</style>
