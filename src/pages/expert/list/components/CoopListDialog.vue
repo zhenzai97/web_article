@@ -1,32 +1,32 @@
 <script setup>
-import { getApplicantListApi } from "@@/apis/applicant"
+import { getExpertCoopListByExpertApi } from "@@/apis/expert"
 import TableList from "@@/components/TableList/index.vue"
 
 const visible = ref(false)
-const title = ref("应聘列表")
+const title = ref("合作申请")
 const tableLoading = ref(false)
 
 const searchData = reactive({
-  recruitmentId: undefined
+  expertId: undefined
 })
 
 const columns = [
-  { prop: "name", label: "应聘人", align: "left", minWidth: 110 },
+  { prop: "name", label: "申请人", align: "left", minWidth: 110 },
+  { prop: "company", label: "公司/品牌", align: "left", minWidth: 140 },
   { prop: "mobile", label: "联系电话", align: "center", minWidth: 120 },
-  { prop: "salaryRange", label: "期望薪资", align: "center", minWidth: 110 },
-  { prop: "companyName", label: "公司", align: "left", minWidth: 130 },
+  { prop: "matter", label: "合作事宜", align: "left", minWidth: 180, showOverflowTooltip: true },
   { prop: "createTime", label: "创建时间", align: "center", minWidth: 160 }
 ]
 
 function show(row) {
-  searchData.recruitmentId = row?.id
-  title.value = row?.name ? `应聘列表 - ${row.name}` : "应聘列表"
+  searchData.expertId = row?.id
+  title.value = row?.name ? `合作申请 - ${row.name}` : "合作申请"
   visible.value = true
 }
 
 function close() {
   visible.value = false
-  searchData.recruitmentId = undefined
+  searchData.expertId = undefined
 }
 
 defineExpose({ show })
@@ -40,11 +40,11 @@ defineExpose({ show })
     destroy-on-close
     @closed="close"
   >
-    <div v-loading="tableLoading" class="applicant-dialog-table">
+    <div v-loading="tableLoading" class="coop-dialog-table">
       <TableList
-        v-if="visible && searchData.recruitmentId"
+        v-if="visible && searchData.expertId"
         :columns="columns"
-        :api="getApplicantListApi"
+        :api="getExpertCoopListByExpertApi"
         :params="searchData"
         :immediate="true"
         :auto-height="false"
@@ -57,7 +57,7 @@ defineExpose({ show })
 </template>
 
 <style lang="scss" scoped>
-.applicant-dialog-table {
+.coop-dialog-table {
   min-height: 280px;
 }
 </style>
