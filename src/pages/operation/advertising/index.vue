@@ -8,6 +8,7 @@ import SearchForm from "@@/components/SearchForm/index.vue"
 import TableList from "@@/components/TableList/index.vue"
 import VideoDisplay from "@@/components/VideoDisplay/index.vue"
 import { ENABLE_STATUS_OPTIONS } from "@@/constants/article"
+import { PERM } from "@@/constants/permission"
 import { CirclePlus } from "@element-plus/icons-vue"
 import FormDialog from "./components/FormDialog.vue"
 
@@ -161,7 +162,7 @@ onMounted(loadSpaces)
     </template>
 
     <template #toolbar>
-      <el-button type="primary" :icon="CirclePlus" @click="handleAdd">
+      <el-button v-permission="PERM.operationAdvertising.add" type="primary" :icon="CirclePlus" @click="handleAdd">
         新增广告
       </el-button>
     </template>
@@ -190,10 +191,10 @@ onMounted(loadSpaces)
           <OptionLabel :options="ENABLE_STATUS_OPTIONS" :value="row.status" />
         </template>
         <template #action="{ row }">
-          <el-button type="primary" text bg size="small" @click="handleUpdate(row)">
+          <el-button v-permission="PERM.operationAdvertising.edit" type="primary" text bg size="small" @click="handleUpdate(row)">
             编辑
           </el-button>
-          <el-button type="danger" text bg size="small" @click="handleDelete(row)">
+          <el-button v-permission="PERM.operationAdvertising.delete" type="danger" text bg size="small" @click="handleDelete(row)">
             删除
           </el-button>
         </template>

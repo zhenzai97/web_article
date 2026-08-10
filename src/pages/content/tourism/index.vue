@@ -6,6 +6,7 @@ import PageLayout from "@@/components/PageLayout/index.vue"
 import SearchForm from "@@/components/SearchForm/index.vue"
 import TableList from "@@/components/TableList/index.vue"
 import { ENABLE_STATUS_OPTIONS, YES_NO_OPTIONS } from "@@/constants/article"
+import { PERM } from "@@/constants/permission"
 import { TOURISM_TYPE_OPTIONS } from "@@/constants/tourism"
 import { CirclePlus } from "@element-plus/icons-vue"
 import FormDialog from "./components/FormDialog.vue"
@@ -134,7 +135,7 @@ watch(
     </template>
 
     <template #toolbar>
-      <el-button type="primary" :icon="CirclePlus" @click="handleAdd">
+      <el-button v-permission="PERM.contentTourism.add" type="primary" :icon="CirclePlus" @click="handleAdd">
         新增内容
       </el-button>
     </template>
@@ -166,10 +167,10 @@ watch(
           <OptionLabel :options="ENABLE_STATUS_OPTIONS" :value="row.status" />
         </template>
         <template #action="{ row }">
-          <el-button type="primary" text bg size="small" @click="handleUpdate(row)">
+          <el-button v-permission="PERM.contentTourism.edit" type="primary" text bg size="small" @click="handleUpdate(row)">
             编辑
           </el-button>
-          <el-button type="danger" text bg size="small" @click="handleDelete(row)">
+          <el-button v-permission="PERM.contentTourism.delete" type="danger" text bg size="small" @click="handleDelete(row)">
             删除
           </el-button>
         </template>

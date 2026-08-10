@@ -2,6 +2,9 @@ import { getDashboardOverviewApi } from "@@/apis/dashboard"
 import { TOURISM_TYPE_OPTIONS } from "@@/constants/tourism"
 import { Document, Location } from "@element-plus/icons-vue"
 import {
+  buildBizMetrics,
+  buildWorkflowSteps,
+  emptyBizStats,
   homeStats as fallbackHomeStats,
   recentAdvertising as fallbackRecentAdvertising,
   recentArticles as fallbackRecentArticles,
@@ -77,6 +80,10 @@ function mapRecentAdvertising(list = []) {
 export function useDashboardData() {
   const loading = ref(false)
   const stats = ref(buildStats({}))
+  const bizStats = ref({ ...emptyBizStats })
+  const bizMetrics = ref(buildBizMetrics())
+  const todos = ref([])
+  const workflowSteps = ref(buildWorkflowSteps())
   const recentArticles = ref([...fallbackRecentArticles])
   const recentTourism = ref([...fallbackRecentTourism])
   const recentAdvertising = ref([...fallbackRecentAdvertising])
@@ -87,7 +94,12 @@ export function useDashboardData() {
     loading.value = true
     try {
       const { data } = await getDashboardOverviewApi()
+      const nextBiz = { ...emptyBizStats, ...(data.bizStats || {}) }
       stats.value = buildStats(data.stats, data.categories || [])
+      bizStats.value = nextBiz
+      bizMetrics.value = buildBizMetrics(nextBiz)
+      todos.value = data.todos || []
+      workflowSteps.value = buildWorkflowSteps(nextBiz, data.stats?.articleTotal ?? 0)
       recentArticles.value = mapRecentArticles(data.recentArticles)
       recentTourism.value = mapRecentTourism(data.recentTourism)
       recentAdvertising.value = mapRecentAdvertising(data.recentAdvertising)
@@ -96,6 +108,10 @@ export function useDashboardData() {
     } catch {
       useFallback.value = true
       stats.value = fallbackHomeStats
+      bizStats.value = { ...emptyBizStats }
+      bizMetrics.value = buildBizMetrics()
+      todos.value = []
+      workflowSteps.value = buildWorkflowSteps()
       recentArticles.value = []
       recentTourism.value = []
       recentAdvertising.value = []
@@ -110,6 +126,10 @@ export function useDashboardData() {
   return {
     loading,
     stats,
+    bizStats,
+    bizMetrics,
+    todos,
+    workflowSteps,
     recentArticles,
     recentTourism,
     recentAdvertising,

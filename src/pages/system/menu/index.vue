@@ -1,4 +1,5 @@
 <script setup>
+import { PERM } from "@@/constants/permission"
 import { deleteMenuApi, getMenuTreeApi } from "@@/apis/menus"
 import PageLayout from "@@/components/PageLayout/index.vue"
 import * as ElementPlusIconsVue from "@element-plus/icons-vue"
@@ -66,7 +67,7 @@ onMounted(loadMenuTree)
 <template>
   <PageLayout>
     <template #toolbar>
-      <el-button type="primary" :icon="CirclePlus" @click="handleAdd">
+      <el-button v-permission="PERM.systemMenu.add" type="primary" :icon="CirclePlus" @click="handleAdd">
         新增菜单
       </el-button>
     </template>
@@ -76,7 +77,6 @@ onMounted(loadMenuTree)
         <el-table
           stripe
           row-key="id"
-          default-expand-all
           :data="tableData"
           :tree-props="{ children: 'children' }"
         >
@@ -132,10 +132,10 @@ onMounted(loadMenuTree)
           </el-table-column>
           <el-table-column fixed="right" label="操作" width="150" align="center">
             <template #default="{ row }">
-              <el-button type="primary" text bg size="small" @click="handleUpdate(row)">
+              <el-button v-permission="PERM.systemMenu.edit" type="primary" text bg size="small" @click="handleUpdate(row)">
                 修改
               </el-button>
-              <el-button type="danger" text bg size="small" @click="handleDelete(row)">
+              <el-button v-permission="PERM.systemMenu.delete" type="danger" text bg size="small" @click="handleDelete(row)">
                 删除
               </el-button>
             </template>

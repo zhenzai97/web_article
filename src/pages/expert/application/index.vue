@@ -4,6 +4,7 @@ import PageLayout from "@@/components/PageLayout/index.vue"
 import SearchForm from "@@/components/SearchForm/index.vue"
 import TableList from "@@/components/TableList/index.vue"
 import { EXPERT_PLATFORM_OPTIONS } from "@@/constants/expert"
+import { PERM } from "@@/constants/permission"
 import { CirclePlus } from "@element-plus/icons-vue"
 import FormDialog from "./components/FormDialog.vue"
 
@@ -117,7 +118,7 @@ function handleDelete(row) {
     </template>
 
     <template #toolbar>
-      <el-button type="primary" :icon="CirclePlus" @click="handleAdd">
+      <el-button v-permission="PERM.expertApplication.add" type="primary" :icon="CirclePlus" @click="handleAdd">
         新增申请
       </el-button>
     </template>
@@ -144,10 +145,10 @@ function handleDelete(row) {
           <span v-else>-</span>
         </template>
         <template #action="{ row }">
-          <el-button type="primary" text bg size="small" @click="handleUpdate(row)">
+          <el-button v-permission="PERM.expertApplication.edit" type="primary" text bg size="small" @click="handleUpdate(row)">
             编辑
           </el-button>
-          <el-button type="danger" text bg size="small" @click="handleDelete(row)">
+          <el-button v-permission="PERM.expertApplication.delete" type="danger" text bg size="small" @click="handleDelete(row)">
             删除
           </el-button>
         </template>

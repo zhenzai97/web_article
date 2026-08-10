@@ -1,4 +1,5 @@
 <script setup>
+import { PERM } from "@@/constants/permission"
 import {
   deleteAdvertisingSpaceApi,
   getAdvertisingSpaceListApi
@@ -87,7 +88,7 @@ function handleDelete(row) {
     </template>
 
     <template #toolbar>
-      <el-button type="primary" :icon="CirclePlus" @click="handleAdd">
+      <el-button v-permission="PERM.operationAdvertisingSpace.add" type="primary" :icon="CirclePlus" @click="handleAdd">
         新增运营位
       </el-button>
     </template>
@@ -109,10 +110,10 @@ function handleDelete(row) {
           </el-tag>
         </template>
         <template #action="{ row }">
-          <el-button type="primary" text bg size="small" @click="handleUpdate(row)">
+          <el-button v-permission="PERM.operationAdvertisingSpace.edit" type="primary" text bg size="small" @click="handleUpdate(row)">
             修改
           </el-button>
-          <el-button type="danger" text bg size="small" @click="handleDelete(row)">
+          <el-button v-permission="PERM.operationAdvertisingSpace.delete" type="danger" text bg size="small" @click="handleDelete(row)">
             删除
           </el-button>
         </template>

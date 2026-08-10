@@ -6,6 +6,7 @@ import PageLayout from "@@/components/PageLayout/index.vue"
 import SearchForm from "@@/components/SearchForm/index.vue"
 import TableList from "@@/components/TableList/index.vue"
 import { ENABLE_STATUS_OPTIONS } from "@@/constants/article"
+import { PERM } from "@@/constants/permission"
 import {
   QUALIFICATION_OPTIONS,
   SALARY_RANGE_OPTIONS,
@@ -185,7 +186,7 @@ function handleApplicantList(row) {
     </template>
 
     <template #toolbar>
-      <el-button type="primary" :icon="CirclePlus" @click="handleAdd">
+      <el-button v-permission="PERM.recruitmentList.add" type="primary" :icon="CirclePlus" @click="handleAdd">
         新增招聘
       </el-button>
     </template>
@@ -208,10 +209,10 @@ function handleApplicantList(row) {
           <OptionLabel :options="ENABLE_STATUS_OPTIONS" :value="row.status" />
         </template>
         <template #action="{ row }">
-          <el-button type="primary" text bg size="small" @click="handleUpdate(row)">
+          <el-button v-permission="PERM.recruitmentList.edit" type="primary" text bg size="small" @click="handleUpdate(row)">
             编辑
           </el-button>
-          <el-button type="danger" text bg size="small" @click="handleDelete(row)">
+          <el-button v-permission="PERM.recruitmentList.delete" type="danger" text bg size="small" @click="handleDelete(row)">
             删除
           </el-button>
         </template>

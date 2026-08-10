@@ -1,4 +1,5 @@
 <script setup>
+import { PERM } from "@@/constants/permission"
 import { deleteArticleCatApi, getArticleCatListApi } from "@@/apis/article-cats"
 import PageLayout from "@@/components/PageLayout/index.vue"
 import SearchForm from "@@/components/SearchForm/index.vue"
@@ -86,7 +87,7 @@ function handleDelete(row) {
     </template>
 
     <template #toolbar>
-      <el-button type="primary" :icon="CirclePlus" @click="handleAdd">
+      <el-button v-permission="PERM.contentCategory.add" type="primary" :icon="CirclePlus" @click="handleAdd">
         新增分类
       </el-button>
     </template>
@@ -108,10 +109,10 @@ function handleDelete(row) {
           </el-tag>
         </template>
         <template #action="{ row }">
-          <el-button type="primary" text bg size="small" @click="handleUpdate(row)">
+          <el-button v-permission="PERM.contentCategory.edit" type="primary" text bg size="small" @click="handleUpdate(row)">
             修改
           </el-button>
-          <el-button type="danger" text bg size="small" @click="handleDelete(row)">
+          <el-button v-permission="PERM.contentCategory.delete" type="danger" text bg size="small" @click="handleDelete(row)">
             删除
           </el-button>
         </template>

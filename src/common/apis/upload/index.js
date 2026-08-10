@@ -22,10 +22,7 @@ export function uploadOssApi(file) {
     url: "upload/oss",
     method: "post",
     data: formData,
-    headers: {
-      "Content-Type": "multipart/form-data"
-    },
-    timeout: 60000
+    timeout: 120000
   })
 }
 

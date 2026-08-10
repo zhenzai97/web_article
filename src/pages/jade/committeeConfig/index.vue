@@ -1,23 +1,24 @@
 <script setup>
-import { deleteAssociationConfigApi, getAssociationConfigListApi } from "@@/apis/association-config"
-import ImageDisplay from "@@/components/ImageDisplay/index.vue"
+import { deleteJadeCommitteeConfigApi, getJadeCommitteeConfigListApi } from "@@/apis/jade-committee-config"
 import OptionLabel from "@@/components/OptionLabel/index.vue"
 import PageLayout from "@@/components/PageLayout/index.vue"
 import SearchForm from "@@/components/SearchForm/index.vue"
 import TableList from "@@/components/TableList/index.vue"
-import { ENABLE_STATUS_OPTIONS } from "@@/constants/article"
+import { ENABLE_STATUS_OPTIONS, YES_NO_OPTIONS } from "@@/constants/article"
+import { PERM } from "@@/constants/permission"
 import { CirclePlus } from "@element-plus/icons-vue"
 import FormDialog from "./components/FormDialog.vue"
 
 defineOptions({
-  name: "AssociationConfig"
+  name: "JadeCommitteeConfig"
 })
 
 const CONTENT_FIELDS = [
-  { key: "intro", label: "简介" },
-  { key: "purpose", label: "宗旨" },
+  { key: "description", label: "简介" },
+  { key: "mission", label: "使命" },
   { key: "business", label: "业务" },
-  { key: "remark", label: "说明" }
+  { key: "needKnow", label: "须知" },
+  { key: "privacyPolicy", label: "隐私政策" }
 ]
 
 const formDialogRef = useTemplateRef("formDialogRef")
@@ -26,7 +27,7 @@ const tableListRef = useTemplateRef("tableListRef")
 const tableLoading = ref(false)
 
 const searchData = reactive({
-  name: "",
+  contact: "",
   status: undefined,
   cStartTime: undefined,
   cEndTime: undefined,
@@ -47,7 +48,7 @@ const statusFilter = computed({
 })
 
 const searchItems = [
-  { label: "协会名称", component: "input", value: "name" },
+  { label: "联系人", component: "input", value: "contact" },
   {
     label: "创建时间",
     value: "createTime",
@@ -65,12 +66,10 @@ const searchItems = [
 ]
 
 const columns = [
-  { prop: "name", label: "协会名称", align: "left", minWidth: 160 },
+  { prop: "contact", label: "联系人", align: "left", minWidth: 120 },
   { prop: "mobile", label: "电话", align: "center", minWidth: 120 },
-  { prop: "email", label: "邮箱", align: "left", minWidth: 140, showOverflowTooltip: true },
-  { prop: "workTime", label: "工作时间", align: "center", width: 120 },
-  { prop: "wxAccount", label: "微信码", align: "center", slot: "wxAccount", width: 80 },
-  { prop: "contentFlags", label: "图文配置", align: "left", slot: "contentFlags", minWidth: 220 },
+  { prop: "isJump", label: "是否跳转", align: "center", slot: "isJump", width: 90 },
+  { prop: "contentFlags", label: "图文配置", align: "left", slot: "contentFlags", minWidth: 260 },
   { prop: "status", label: "状态", align: "center", slot: "status", width: 80 },
   { prop: "createTime", label: "创建时间", align: "center", minWidth: 160 },
   { prop: "updateTime", label: "更新时间", align: "center", minWidth: 160 },
@@ -104,12 +103,12 @@ function handleUpdate(row) {
 }
 
 function handleDelete(row) {
-  ElMessageBox.confirm(`确认删除协会配置：${row.name}？`, "提示", {
+  ElMessageBox.confirm(`确认删除该专委会配置？`, "提示", {
     confirmButtonText: "确定",
     cancelButtonText: "取消",
     type: "warning"
   }).then(() => {
-    deleteAssociationConfigApi(row.id).then(() => {
+    deleteJadeCommitteeConfigApi(row.id).then(() => {
       ElMessage.success("删除成功")
       tableListRef.value?.refresh()
     })
@@ -139,7 +138,7 @@ function handleDelete(row) {
           v-model="searchData"
           :items="searchItems"
           :loading="tableLoading"
-          cache-key="association-config-search"
+          cache-key="jade-committee-config-search"
           label-width="80px"
           @search="handleSearch"
           @reset="handleReset"
@@ -149,10 +148,10 @@ function handleDelete(row) {
 
     <template #toolbar>
       <div class="toolbar-row">
-        <el-button type="primary" :icon="CirclePlus" @click="handleAdd">
+        <el-button v-permission="PERM.jadeCommitteeConfig.add" type="primary" :icon="CirclePlus" @click="handleAdd">
           新增配置
         </el-button>
-        <span class="tip">建议仅保留一条启用配置，供小程序关于我们/联系页读取</span>
+        <span class="tip">建议仅保留一条启用配置，供小程序专委会页读取</span>
       </div>
     </template>
 
@@ -160,12 +159,12 @@ function handleDelete(row) {
       <TableList
         ref="tableListRef"
         :columns="columns"
-        :api="getAssociationConfigListApi"
+        :api="getJadeCommitteeConfigListApi"
         :params="searchData"
         @loading-change="tableLoading = $event"
       >
-        <template #wxAccount="{ row }">
-          <ImageDisplay :src="row.wxAccount" :width="48" :height="48" />
+        <template #isJump="{ row }">
+          <OptionLabel :options="YES_NO_OPTIONS" :value="row.isJump" />
         </template>
         <template #contentFlags="{ row }">
           <el-tag
@@ -183,10 +182,10 @@ function handleDelete(row) {
           <OptionLabel :options="ENABLE_STATUS_OPTIONS" :value="row.status" />
         </template>
         <template #action="{ row }">
-          <el-button type="primary" text bg size="small" @click="handleUpdate(row)">
+          <el-button v-permission="PERM.jadeCommitteeConfig.edit" type="primary" text bg size="small" @click="handleUpdate(row)">
             编辑
           </el-button>
-          <el-button type="danger" text bg size="small" @click="handleDelete(row)">
+          <el-button v-permission="PERM.jadeCommitteeConfig.delete" type="danger" text bg size="small" @click="handleDelete(row)">
             删除
           </el-button>
         </template>

@@ -1,5 +1,5 @@
 <script setup>
-import { FolderOpened, Plus } from "@element-plus/icons-vue"
+import { Briefcase, FolderOpened, Plus } from "@element-plus/icons-vue"
 
 defineProps({
   greeting: {
@@ -29,16 +29,34 @@ defineProps({
           {{ greeting }}，{{ displayName }}
         </p>
         <h1 class="hero-title">
-          内容工作台
+          运营工作台
         </h1>
         <p class="hero-desc">
-          文章共 {{ summary.articleTotal }} 篇（启用 {{ summary.articleEnabled }} / 禁用 {{ summary.articleDisabled }}），
-          文旅内容 {{ summary.tourismTotal }} 条；本周新增文章 {{ summary.weekNew }} 篇。
+          文章 {{ summary.articleTotal }} 篇（启用 {{ summary.articleEnabled }}），
+          文旅 {{ summary.tourismTotal }} 条；本周新增文章 {{ summary.weekNew }} 篇。
+          <template v-if="summary.pendingCount > 0">
+            当前待办 {{ summary.pendingCount }} 项
+            <template v-if="summary.jadeApplyPending">
+              （非洲翠申请待审 {{ summary.jadeApplyPending }}）
+            </template>
+            <template v-if="summary.advertisingExpiring">
+              （广告即将到期 {{ summary.advertisingExpiring }}）
+            </template>
+            。
+          </template>
+          <template v-else>
+            暂无紧急待办。
+          </template>
         </p>
         <div class="hero-actions">
           <router-link to="/content/article">
             <el-button type="primary" :icon="Plus">
               文章管理
+            </el-button>
+          </router-link>
+          <router-link to="/jade/committeeApply">
+            <el-button :icon="Briefcase">
+              专委会申请
             </el-button>
           </router-link>
           <router-link to="/content/category">
@@ -50,7 +68,7 @@ defineProps({
       </div>
       <div class="hero-workflow">
         <p class="workflow-title">
-          发布流程
+          运营流程
         </p>
         <div class="workflow-steps">
           <div
@@ -98,7 +116,7 @@ defineProps({
 }
 
 .hero-desc {
-  max-width: 520px;
+  max-width: 560px;
   margin: 0 0 20px;
   font-size: 14px;
   line-height: 1.6;

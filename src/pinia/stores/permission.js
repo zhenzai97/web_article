@@ -23,10 +23,25 @@ function filterDynamicRoutes(routes, roles) {
   return res
 }
 
+/** 从菜单树收集 permCode（含按钮 menuType=3） */
+function collectPermCodes(menus = [], result = []) {
+  menus.forEach((menu) => {
+    if (menu?.permCode) {
+      result.push(String(menu.permCode).trim())
+    }
+    if (menu?.children?.length) {
+      collectPermCodes(menu.children, result)
+    }
+  })
+  return [...new Set(result.filter(Boolean))]
+}
+
 export const usePermissionStore = defineStore("permission", () => {
   const routes = ref([])
   const addRoutes = ref([])
   const menuRouteNames = ref([])
+  /** 当前用户拥有的权限码（来自菜单树 permCode） */
+  const permissions = ref([])
 
   const set = (accessedRoutes) => {
     routes.value = constantRoutes.concat(accessedRoutes)
@@ -43,8 +58,9 @@ export const usePermissionStore = defineStore("permission", () => {
     set(dynamicRoutes)
   }
 
-  /** 根据后端菜单生成可访问路由 */
+  /** 根据后端菜单生成可访问路由，并缓存权限码 */
   const setMenuRoutes = (menus, roles) => {
+    permissions.value = collectPermCodes(menus)
     const menuRoutes = transformMenuToRoutes(menus)
     const demoRoutes = routerConfig.dynamic ? filterDynamicRoutes(dynamicRoutes, roles) : []
     const accessedRoutes = [...menuRoutes, ...demoRoutes]
@@ -59,9 +75,19 @@ export const usePermissionStore = defineStore("permission", () => {
     routes.value = []
     addRoutes.value = []
     menuRouteNames.value = []
+    permissions.value = []
   }
 
-  return { routes, addRoutes, menuRouteNames, setMenuRoutes, setRoutes, setAllRoutes, resetRoutes }
+  return {
+    routes,
+    addRoutes,
+    menuRouteNames,
+    permissions,
+    setMenuRoutes,
+    setRoutes,
+    setAllRoutes,
+    resetRoutes
+  }
 })
 
 export function usePermissionStoreOutside() {

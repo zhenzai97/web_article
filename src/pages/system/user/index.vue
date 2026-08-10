@@ -1,4 +1,5 @@
 <script setup>
+import { PERM } from "@@/constants/permission"
 import { deleteUserApi, getUserListApi } from "@@/apis/users"
 import PageLayout from "@@/components/PageLayout/index.vue"
 import SearchForm from "@@/components/SearchForm/index.vue"
@@ -78,10 +79,10 @@ function handleDelete(row) {
 
     <template #toolbar>
       <div>
-        <el-button type="primary" :icon="CirclePlus" @click="handleAdd">
+        <el-button v-permission="PERM.systemUser.add" type="primary" :icon="CirclePlus" @click="handleAdd">
           新增用户
         </el-button>
-        <el-button type="danger" :icon="Delete">
+        <el-button v-permission="PERM.systemUser.batchDelete" type="danger" :icon="Delete">
           批量删除
         </el-button>
       </div>
@@ -104,10 +105,10 @@ function handleDelete(row) {
           </el-tag>
         </template>
         <template #action="{ row }">
-          <el-button type="primary" text bg size="small" @click="handleUpdate(row)">
+          <el-button v-permission="PERM.systemUser.edit" type="primary" text bg size="small" @click="handleUpdate(row)">
             修改
           </el-button>
-          <el-button type="danger" text bg size="small" @click="handleDelete(row)">
+          <el-button v-permission="PERM.systemUser.delete" type="danger" text bg size="small" @click="handleDelete(row)">
             删除
           </el-button>
         </template>

@@ -1,20 +1,31 @@
 import { isArray } from "@@/utils/validate"
-import { useUserStore } from "@/pinia/stores/user"
+import { checkPermission } from "@@/utils/permission"
 
 /**
- * @name 权限指令
- * @description 和权限判断函数 checkPermission 功能类似
+ * 权限指令：按菜单 permCode 控制按钮显隐
+ * 用法：
+ *   v-permission="'content:article:add'"
+ *   v-permission="['content:article:edit', 'content:article:delete']"
  */
 const permission = {
   mounted(el, binding) {
-    const { value: permissionRoles } = binding
-    const { roles } = useUserStore()
-    if (isArray(permissionRoles) && permissionRoles.length > 0) {
-      const hasPermission = roles.some(role => permissionRoles.includes(role))
-      hasPermission || el.parentNode?.removeChild(el)
-    } else {
-      throw new Error(`参数必须是一个数组且长度大于 0，参考：v-permission="['admin', 'editor']"`)
-    }
+    applyPermission(el, binding)
+  },
+  updated(el, binding) {
+    applyPermission(el, binding)
+  }
+}
+
+function applyPermission(el, binding) {
+  const { value } = binding
+  if (value == null || value === "") {
+    return
+  }
+  if (typeof value !== "string" && !(isArray(value) && value.length > 0)) {
+    throw new Error("v-permission 参数须为字符串或非空数组，如 v-permission=\"'system:user:add'\"")
+  }
+  if (!checkPermission(value)) {
+    el.parentNode?.removeChild(el)
   }
 }
 

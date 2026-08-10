@@ -1,23 +1,24 @@
 <script setup>
-import { deleteMemberConfigApi, getMemberConfigListApi } from "@@/apis/member-config"
+import { deleteAssociationConfigApi, getAssociationConfigListApi } from "@@/apis/association-config"
+import ImageDisplay from "@@/components/ImageDisplay/index.vue"
 import OptionLabel from "@@/components/OptionLabel/index.vue"
 import PageLayout from "@@/components/PageLayout/index.vue"
 import SearchForm from "@@/components/SearchForm/index.vue"
 import TableList from "@@/components/TableList/index.vue"
 import { ENABLE_STATUS_OPTIONS } from "@@/constants/article"
+import { PERM } from "@@/constants/permission"
 import { CirclePlus } from "@element-plus/icons-vue"
 import FormDialog from "./components/FormDialog.vue"
 
 defineOptions({
-  name: "CompanyConfig"
+  name: "AssociationConfig"
 })
 
 const CONTENT_FIELDS = [
-  { key: "conditionContent", label: "入会条件" },
-  { key: "treaty", label: "自律公约" },
-  { key: "equity", label: "会员权益" },
-  { key: "notice", label: "协会章程" },
-  { key: "agreement", label: "入会协议" }
+  { key: "intro", label: "简介" },
+  { key: "purpose", label: "宗旨" },
+  { key: "business", label: "业务" },
+  { key: "remark", label: "说明" }
 ]
 
 const formDialogRef = useTemplateRef("formDialogRef")
@@ -26,6 +27,7 @@ const tableListRef = useTemplateRef("tableListRef")
 const tableLoading = ref(false)
 
 const searchData = reactive({
+  name: "",
   status: undefined,
   cStartTime: undefined,
   cEndTime: undefined,
@@ -46,6 +48,7 @@ const statusFilter = computed({
 })
 
 const searchItems = [
+  { label: "协会名称", component: "input", value: "name" },
   {
     label: "创建时间",
     value: "createTime",
@@ -63,7 +66,12 @@ const searchItems = [
 ]
 
 const columns = [
-  { prop: "contentFlags", label: "配置项", align: "left", slot: "contentFlags", minWidth: 320 },
+  { prop: "name", label: "协会名称", align: "left", minWidth: 160 },
+  { prop: "mobile", label: "电话", align: "center", minWidth: 120 },
+  { prop: "email", label: "邮箱", align: "left", minWidth: 140, showOverflowTooltip: true },
+  { prop: "workTime", label: "工作时间", align: "center", width: 120 },
+  { prop: "wxAccount", label: "微信码", align: "center", slot: "wxAccount", width: 80 },
+  { prop: "contentFlags", label: "图文配置", align: "left", slot: "contentFlags", minWidth: 220 },
   { prop: "status", label: "状态", align: "center", slot: "status", width: 80 },
   { prop: "createTime", label: "创建时间", align: "center", minWidth: 160 },
   { prop: "updateTime", label: "更新时间", align: "center", minWidth: 160 },
@@ -97,12 +105,12 @@ function handleUpdate(row) {
 }
 
 function handleDelete(row) {
-  ElMessageBox.confirm("确认删除该会员配置？", "提示", {
+  ElMessageBox.confirm(`确认删除协会配置：${row.name}？`, "提示", {
     confirmButtonText: "确定",
     cancelButtonText: "取消",
     type: "warning"
   }).then(() => {
-    deleteMemberConfigApi(row.id).then(() => {
+    deleteAssociationConfigApi(row.id).then(() => {
       ElMessage.success("删除成功")
       tableListRef.value?.refresh()
     })
@@ -132,7 +140,7 @@ function handleDelete(row) {
           v-model="searchData"
           :items="searchItems"
           :loading="tableLoading"
-          cache-key="member-config-search"
+          cache-key="association-config-search"
           label-width="80px"
           @search="handleSearch"
           @reset="handleReset"
@@ -142,10 +150,10 @@ function handleDelete(row) {
 
     <template #toolbar>
       <div class="toolbar-row">
-        <el-button type="primary" :icon="CirclePlus" @click="handleAdd">
+        <el-button v-permission="PERM.memberAssociationConfig.add" type="primary" :icon="CirclePlus" @click="handleAdd">
           新增配置
         </el-button>
-        <span class="tip">建议仅保留一条启用配置，供小程序入会页读取</span>
+        <span class="tip">建议仅保留一条启用配置，供小程序关于我们/联系页读取</span>
       </div>
     </template>
 
@@ -153,10 +161,13 @@ function handleDelete(row) {
       <TableList
         ref="tableListRef"
         :columns="columns"
-        :api="getMemberConfigListApi"
+        :api="getAssociationConfigListApi"
         :params="searchData"
         @loading-change="tableLoading = $event"
       >
+        <template #wxAccount="{ row }">
+          <ImageDisplay :src="row.wxAccount" :width="48" :height="48" />
+        </template>
         <template #contentFlags="{ row }">
           <el-tag
             v-for="item in CONTENT_FIELDS"
@@ -173,10 +184,10 @@ function handleDelete(row) {
           <OptionLabel :options="ENABLE_STATUS_OPTIONS" :value="row.status" />
         </template>
         <template #action="{ row }">
-          <el-button type="primary" text bg size="small" @click="handleUpdate(row)">
+          <el-button v-permission="PERM.memberAssociationConfig.edit" type="primary" text bg size="small" @click="handleUpdate(row)">
             编辑
           </el-button>
-          <el-button type="danger" text bg size="small" @click="handleDelete(row)">
+          <el-button v-permission="PERM.memberAssociationConfig.delete" type="danger" text bg size="small" @click="handleDelete(row)">
             删除
           </el-button>
         </template>

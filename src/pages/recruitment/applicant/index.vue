@@ -5,6 +5,7 @@ import PageLayout from "@@/components/PageLayout/index.vue"
 import SearchForm from "@@/components/SearchForm/index.vue"
 import TableList from "@@/components/TableList/index.vue"
 import { SALARY_RANGE_OPTIONS } from "@@/constants/recruitment"
+import { PERM } from "@@/constants/permission"
 import { CirclePlus } from "@element-plus/icons-vue"
 import FormDialog from "./components/FormDialog.vue"
 
@@ -125,7 +126,7 @@ function handleDelete(row) {
     </template>
 
     <template #toolbar>
-      <el-button type="primary" :icon="CirclePlus" @click="handleAdd">
+      <el-button v-permission="PERM.recruitmentApplicant.add" type="primary" :icon="CirclePlus" @click="handleAdd">
         新增应聘
       </el-button>
     </template>
@@ -140,10 +141,10 @@ function handleDelete(row) {
         @loading-change="tableLoading = $event"
       >
         <template #action="{ row }">
-          <el-button type="primary" text bg size="small" @click="handleUpdate(row)">
+          <el-button v-permission="PERM.recruitmentApplicant.edit" type="primary" text bg size="small" @click="handleUpdate(row)">
             编辑
           </el-button>
-          <el-button type="danger" text bg size="small" @click="handleDelete(row)">
+          <el-button v-permission="PERM.recruitmentApplicant.delete" type="danger" text bg size="small" @click="handleDelete(row)">
             删除
           </el-button>
         </template>

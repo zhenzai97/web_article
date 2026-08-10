@@ -6,6 +6,7 @@ import PageLayout from "@@/components/PageLayout/index.vue"
 import SearchForm from "@@/components/SearchForm/index.vue"
 import TableList from "@@/components/TableList/index.vue"
 import { ENABLE_STATUS_OPTIONS } from "@@/constants/article"
+import { PERM } from "@@/constants/permission"
 import {
   COMPANY_TAG_OPTIONS,
   EXAMINE_STATUS_OPTIONS,
@@ -179,7 +180,7 @@ function handleDelete(row) {
     </template>
 
     <template #toolbar>
-      <el-button type="primary" :icon="CirclePlus" @click="handleAdd">
+      <el-button v-permission="PERM.memberCompany.add" type="primary" :icon="CirclePlus" @click="handleAdd">
         新增会员
       </el-button>
     </template>
@@ -214,10 +215,10 @@ function handleDelete(row) {
           <OptionLabel :options="ENABLE_STATUS_OPTIONS" :value="row.status" />
         </template>
         <template #action="{ row }">
-          <el-button type="primary" text bg size="small" @click="handleUpdate(row)">
+          <el-button v-permission="PERM.memberCompany.edit" type="primary" text bg size="small" @click="handleUpdate(row)">
             编辑
           </el-button>
-          <el-button type="danger" text bg size="small" @click="handleDelete(row)">
+          <el-button v-permission="PERM.memberCompany.delete" type="danger" text bg size="small" @click="handleDelete(row)">
             删除
           </el-button>
         </template>

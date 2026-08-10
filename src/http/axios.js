@@ -91,7 +91,12 @@ function createRequest(instance) {
       timeout: 5000,
       withCredentials: false
     }
-    return instance(merge(defaultConfig, config))
+    const finalConfig = merge(defaultConfig, config)
+    // FormData 必须由浏览器自动设置 multipart boundary
+    if (finalConfig.data instanceof FormData) {
+      delete finalConfig.headers["Content-Type"]
+    }
+    return instance(finalConfig)
   }
 }
 

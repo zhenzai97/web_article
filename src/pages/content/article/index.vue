@@ -12,6 +12,7 @@ import SearchForm from "@@/components/SearchForm/index.vue"
 import TableList from "@@/components/TableList/index.vue"
 import VideoDisplay from "@@/components/VideoDisplay/index.vue"
 import { ENABLE_STATUS_OPTIONS, YES_NO_OPTIONS } from "@@/constants/article"
+import { PERM } from "@@/constants/permission"
 import { CirclePlus, Delete } from "@element-plus/icons-vue"
 import FormDialog from "./components/FormDialog.vue"
 
@@ -189,10 +190,10 @@ watch(
 
     <template #toolbar>
       <div>
-        <el-button type="primary" :icon="CirclePlus" @click="handleAdd">
+        <el-button v-permission="PERM.contentArticle.add" type="primary" :icon="CirclePlus" @click="handleAdd">
           新增
         </el-button>
-        <el-button type="danger" :icon="Delete" @click="handleBatchDelete">
+        <el-button v-permission="PERM.contentArticle.batchDelete" type="danger" :icon="Delete" @click="handleBatchDelete">
           批量删除
         </el-button>
       </div>
@@ -231,10 +232,10 @@ watch(
           <OptionLabel :options="YES_NO_OPTIONS" :value="row.isHome" />
         </template>
         <template #action="{ row }">
-          <el-button type="primary" text bg size="small" @click="handleUpdate(row)">
+          <el-button v-permission="PERM.contentArticle.edit" type="primary" text bg size="small" @click="handleUpdate(row)">
             编辑
           </el-button>
-          <el-button type="danger" text bg size="small" @click="handleDelete(row)">
+          <el-button v-permission="PERM.contentArticle.delete" type="danger" text bg size="small" @click="handleDelete(row)">
             删除
           </el-button>
         </template>

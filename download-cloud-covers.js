@@ -165,7 +165,12 @@ async function main() {
   console.log(`失败: ${failed}`)
 }
 
-main().catch((error) => {
-  console.error(error)
-  process.exit(1)
-})
+const isDirectRun = process.argv[1]
+  && path.resolve(process.argv[1]) === path.resolve(fileURLToPath(import.meta.url))
+
+if (isDirectRun) {
+  main().catch((error) => {
+    console.error(error)
+    process.exit(1)
+  })
+}

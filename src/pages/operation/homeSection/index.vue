@@ -1,4 +1,5 @@
 <script setup>
+import { PERM } from "@@/constants/permission"
 import { getHomeSectionListApi, updateHomeSectionApi } from "@@/apis/home-section"
 import { Refresh } from "@element-plus/icons-vue"
 import HomePreview from "./components/HomePreview.vue"
@@ -93,7 +94,7 @@ onMounted(loadList)
           </el-table-column>
           <el-table-column label="操作" width="100" fixed="right" align="center">
             <template #default="{ row }">
-              <el-button
+              <el-button v-permission="PERM.operationHomeSection.edit"
                 type="primary"
                 text
                 bg

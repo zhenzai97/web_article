@@ -1,4 +1,5 @@
 <script setup>
+import { PERM } from "@@/constants/permission"
 import { deleteRoleApi, getRoleListApi } from "@@/apis/roles"
 import PageLayout from "@@/components/PageLayout/index.vue"
 import SearchForm from "@@/components/SearchForm/index.vue"
@@ -82,10 +83,10 @@ function handleDelete(row) {
 
     <template #toolbar>
       <div>
-        <el-button type="primary" :icon="CirclePlus" @click="handleAdd">
+        <el-button v-permission="PERM.systemRole.add" type="primary" :icon="CirclePlus" @click="handleAdd">
           新增角色
         </el-button>
-        <el-button type="danger" :icon="Delete">
+        <el-button v-permission="PERM.systemRole.batchDelete" type="danger" :icon="Delete">
           批量删除
         </el-button>
       </div>
@@ -108,7 +109,7 @@ function handleDelete(row) {
           </el-tag>
         </template>
         <template #action="{ row }">
-          <el-button type="primary" text bg size="small" @click="handleUpdate(row)">
+          <el-button v-permission="PERM.systemRole.edit" type="primary" text bg size="small" @click="handleUpdate(row)">
             修改
           </el-button>
           <el-button
@@ -117,11 +118,11 @@ function handleDelete(row) {
             bg
             size="small"
             :disabled="row.isSuperAdmin === 1"
-            @click="handleAssignMenu(row)"
+            v-permission="PERM.systemRole.assignMenu" @click="handleAssignMenu(row)"
           >
             分配菜单
           </el-button>
-          <el-button type="danger" text bg size="small" @click="handleDelete(row)">
+          <el-button v-permission="PERM.systemRole.delete" type="danger" text bg size="small" @click="handleDelete(row)">
             删除
           </el-button>
         </template>

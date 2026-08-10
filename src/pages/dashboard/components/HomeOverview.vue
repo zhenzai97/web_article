@@ -1,26 +1,31 @@
 <script setup>
 import { useDashboardData } from "../composables/useDashboardData"
 import { useHomeGreeting } from "../composables/useHomeGreeting"
-import { quickLinks, workflowSteps } from "../data"
+import { quickLinks } from "../data"
+import BizMetrics from "./BizMetrics.vue"
 import HomeHero from "./HomeHero.vue"
 import HomeStats from "./HomeStats.vue"
 import PublishTrendPanel from "./PublishTrendPanel.vue"
 import QuickLinksPanel from "./QuickLinksPanel.vue"
 import RecentAdvertisingPanel from "./RecentAdvertisingPanel.vue"
 import RecentArticlesPanel from "./RecentArticlesPanel.vue"
-import RecentTourismPanel from "./RecentTourismPanel.vue"
+import TodoPanel from "./TodoPanel.vue"
 
 const {
   loading,
   stats,
+  bizStats,
+  bizMetrics,
+  todos,
+  workflowSteps,
   recentArticles,
-  recentTourism,
   recentAdvertising,
   weekTrend,
-  useFallback
+  useFallback,
+  reload
 } = useDashboardData()
 
-const { greeting, displayName, todaySummary } = useHomeGreeting(stats, weekTrend)
+const { greeting, displayName, todaySummary } = useHomeGreeting(stats, weekTrend, bizStats, todos)
 </script>
 
 <template>
@@ -31,8 +36,14 @@ const { greeting, displayName, todaySummary } = useHomeGreeting(stats, weekTrend
       type="warning"
       :closable="false"
       show-icon
-      title="工作台数据加载失败，请确认已登录且后端已提供 /dashboard/overview"
-    />
+      title="工作台数据加载失败，请确认已登录且后端 /dashboard/overview 可用"
+    >
+      <template #default>
+        <el-button type="warning" link @click="reload">
+          点击重试
+        </el-button>
+      </template>
+    </el-alert>
 
     <HomeHero
       :greeting="greeting"
@@ -41,18 +52,20 @@ const { greeting, displayName, todaySummary } = useHomeGreeting(stats, weekTrend
       :steps="workflowSteps"
     />
 
+    <BizMetrics :metrics="bizMetrics" />
+
     <HomeStats :stats="stats" />
 
     <el-row :gutter="16" class="main-row">
       <el-col :xs="24" :lg="16">
+        <TodoPanel :todos="todos" />
         <RecentArticlesPanel :articles="recentArticles" />
-        <RecentTourismPanel :list="recentTourism" />
-        <RecentAdvertisingPanel :list="recentAdvertising" />
         <PublishTrendPanel :data="weekTrend" />
       </el-col>
 
       <el-col :xs="24" :lg="8">
         <QuickLinksPanel :links="quickLinks" />
+        <RecentAdvertisingPanel :list="recentAdvertising" />
       </el-col>
     </el-row>
   </div>
