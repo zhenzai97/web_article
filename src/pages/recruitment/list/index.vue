@@ -1,5 +1,6 @@
 <script setup>
 import { deleteRecruitmentApi, getRecruitmentListApi } from "@@/apis/recruitment"
+import { getCompanyListApi } from "@@/apis/company"
 import OptionLabel from "@@/components/OptionLabel/index.vue"
 import PageLayout from "@@/components/PageLayout/index.vue"
 import SearchForm from "@@/components/SearchForm/index.vue"
@@ -51,6 +52,21 @@ const statusFilter = computed({
 
 const searchItems = [
   { label: "岗位名称", component: "input", value: "name" },
+  {
+    label: "公司",
+    component: "remoteSelect",
+    value: "companyId",
+    api: getCompanyListApi,
+    valueField: "id",
+    labelField: "name",
+    keywordField: "name",
+    pageSize: 10,
+    params: {
+      status: 1,
+      examineStatus: 1
+    },
+    placeholder: "请选择公司"
+  },
   {
     label: "薪资范围",
     component: "select",

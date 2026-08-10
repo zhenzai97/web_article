@@ -1,5 +1,6 @@
 <script setup>
 import { deleteApplicantApi, getApplicantListApi } from "@@/apis/applicant"
+import { getCompanyListApi } from "@@/apis/company"
 import PageLayout from "@@/components/PageLayout/index.vue"
 import SearchForm from "@@/components/SearchForm/index.vue"
 import TableList from "@@/components/TableList/index.vue"
@@ -31,6 +32,21 @@ const searchData = reactive({
 const searchItems = [
   { label: "应聘人", component: "input", value: "name" },
   { label: "联系电话", component: "input", value: "mobile" },
+  {
+    label: "公司",
+    component: "remoteSelect",
+    value: "companyId",
+    api: getCompanyListApi,
+    valueField: "id",
+    labelField: "name",
+    keywordField: "name",
+    pageSize: 10,
+    params: {
+      status: 1,
+      examineStatus: 1
+    },
+    placeholder: "请选择公司"
+  },
   {
     label: "期望薪资",
     component: "select",
@@ -120,6 +136,7 @@ function handleDelete(row) {
         :columns="columns"
         :api="getApplicantListApi"
         :params="searchData"
+        :page-size="50"
         @loading-change="tableLoading = $event"
       >
         <template #action="{ row }">

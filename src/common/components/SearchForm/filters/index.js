@@ -1,5 +1,6 @@
 import DateRangeFilter from "./DateRangeFilter.vue"
 import InputFilter from "./InputFilter.vue"
+import RemoteSelectFilter from "./RemoteSelectFilter.vue"
 import SelectFilter from "./SelectFilter.vue"
 
 /** 筛选组件注册表，扩展新类型时在此注册即可 */
@@ -11,6 +12,12 @@ const filterRegistry = {
   },
   select: {
     component: SelectFilter,
+    defaultSpan: 8,
+    getFormProp: item => item.value
+  },
+  /** 远程分页下拉：滚动加载 + 关键字筛选 */
+  remoteSelect: {
+    component: RemoteSelectFilter,
     defaultSpan: 8,
     getFormProp: item => item.value
   },
