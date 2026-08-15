@@ -22,7 +22,9 @@ export const PERM = {
     add: "content:article:add",
     edit: "content:article:edit",
     delete: "content:article:delete",
-    batchDelete: "content:article:batchDelete"
+    batchDelete: "content:article:batchDelete",
+    import: "content:article:import",
+    export: "content:article:export"
   },
   contentCategory: {
     add: "content:category:add",

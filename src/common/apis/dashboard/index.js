@@ -7,3 +7,12 @@ export function getDashboardOverviewApi() {
     method: "get"
   })
 }
+
+/** 文章新增趋势：week / month / quarter / year */
+export function getDashboardTrendApi(range = "week") {
+  return request({
+    url: "dashboard/trend",
+    method: "get",
+    params: { range }
+  })
+}

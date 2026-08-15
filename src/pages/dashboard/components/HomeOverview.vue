@@ -60,7 +60,7 @@ const { greeting, displayName, todaySummary } = useHomeGreeting(stats, weekTrend
       <el-col :xs="24" :lg="16">
         <TodoPanel :todos="todos" />
         <RecentArticlesPanel :articles="recentArticles" />
-        <PublishTrendPanel :data="weekTrend" />
+        <PublishTrendPanel />
       </el-col>
 
       <el-col :xs="24" :lg="8">

@@ -1,3 +1,4 @@
+import { getToken } from "@@/utils/local-storage"
 import { request } from "@/http/axios"
 
 /** 文章分页列表 */
@@ -75,5 +76,48 @@ export function getArticleDashboardApi() {
   return request({
     url: "dashboard/overview",
     method: "get"
+  })
+}
+
+/** 下载文章导入模板 */
+export async function downloadArticleImportTemplateApi() {
+  const baseURL = import.meta.env.VITE_BASE_URL || ""
+  const prefix = baseURL.endsWith("/") ? baseURL : `${baseURL}/`
+  const token = getToken()
+  const res = await fetch(`${prefix}article/import/template`, {
+    method: "GET",
+    headers: token ? { Authorization: `Bearer ${token}` } : {}
+  })
+  if (!res.ok) {
+    throw new Error("模板下载失败")
+  }
+  const blob = await res.blob()
+  const link = document.createElement("a")
+  const objectUrl = URL.createObjectURL(blob)
+  link.href = objectUrl
+  link.download = "文章导入模板.xlsx"
+  link.click()
+  URL.revokeObjectURL(objectUrl)
+}
+
+/** 提交文章导入任务 */
+export function importArticleApi(file) {
+  const formData = new FormData()
+  formData.append("file", file)
+  return request({
+    url: "article/import",
+    method: "post",
+    data: formData,
+    timeout: 120000
+  })
+}
+
+/** 提交文章导出任务 */
+export function exportArticleApi(data) {
+  return request({
+    url: "article/export",
+    method: "post",
+    data,
+    timeout: 30000
   })
 }

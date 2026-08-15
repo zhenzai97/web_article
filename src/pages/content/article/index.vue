@@ -3,7 +3,10 @@ import { getArticleCatAllApi } from "@@/apis/article-cats"
 import {
   batchDeleteArticleApi,
   deleteArticleApi,
-  getArticleListApi
+  downloadArticleImportTemplateApi,
+  exportArticleApi,
+  getArticleListApi,
+  importArticleApi
 } from "@@/apis/articles"
 import ImageDisplay from "@@/components/ImageDisplay/index.vue"
 import OptionLabel from "@@/components/OptionLabel/index.vue"
@@ -13,7 +16,8 @@ import TableList from "@@/components/TableList/index.vue"
 import VideoDisplay from "@@/components/VideoDisplay/index.vue"
 import { ENABLE_STATUS_OPTIONS, YES_NO_OPTIONS } from "@@/constants/article"
 import { PERM } from "@@/constants/permission"
-import { CirclePlus, Delete } from "@element-plus/icons-vue"
+import { sanitizeSearchParams } from "@@/utils/sanitize-search-params"
+import { CirclePlus, Delete, Download, Upload } from "@element-plus/icons-vue"
 import FormDialog from "./components/FormDialog.vue"
 
 defineOptions({
@@ -23,8 +27,11 @@ defineOptions({
 const route = useRoute()
 const formDialogRef = useTemplateRef("formDialogRef")
 const tableListRef = useTemplateRef("tableListRef")
+const importInputRef = useTemplateRef("importInputRef")
 
 const tableLoading = ref(false)
+const importLoading = ref(false)
+const exportLoading = ref(false)
 
 const categoryOptions = ref([])
 
@@ -159,6 +166,64 @@ function handleBatchDelete() {
   })
 }
 
+async function handleDownloadTemplate() {
+  try {
+    await downloadArticleImportTemplateApi()
+    ElMessage.success("模板已开始下载")
+  } catch {
+    ElMessage.error("模板下载失败")
+  }
+}
+
+function triggerImport() {
+  importInputRef.value?.click()
+}
+
+async function handleImportChange(event) {
+  const file = event.target.files?.[0]
+  event.target.value = ""
+  if (!file) {
+    return
+  }
+  if (!/\.xlsx$/i.test(file.name)) {
+    ElMessage.warning("请上传 .xlsx 文件")
+    return
+  }
+  importLoading.value = true
+  try {
+    await importArticleApi(file)
+    ElMessage.success("导入任务已提交，请到右上角任务中心查看进度")
+  } catch {
+    // 错误已由拦截器提示
+  } finally {
+    importLoading.value = false
+  }
+}
+
+async function submitExport(payload) {
+  exportLoading.value = true
+  try {
+    await exportArticleApi(payload)
+    ElMessage.success("导出任务已提交，请到右上角任务中心下载结果")
+  } catch {
+    // 错误已由拦截器提示
+  } finally {
+    exportLoading.value = false
+  }
+}
+
+function handleExportFilter() {
+  submitExport(sanitizeSearchParams({ ...searchData }))
+}
+
+function handleExportSelected() {
+  if (!selectedRows.value.length) {
+    ElMessage.warning("请先勾选要导出的文章")
+    return
+  }
+  submitExport({ ids: selectedRows.value.map(item => item.id) })
+}
+
 onMounted(loadCategories)
 
 watch(
@@ -189,13 +254,56 @@ watch(
     </template>
 
     <template #toolbar>
-      <div>
-        <el-button v-permission="PERM.contentArticle.add" type="primary" :icon="CirclePlus" @click="handleAdd">
-          新增
-        </el-button>
-        <el-button v-permission="PERM.contentArticle.batchDelete" type="danger" :icon="Delete" @click="handleBatchDelete">
-          批量删除
-        </el-button>
+      <div class="toolbar-row">
+        <div>
+          <el-button v-permission="PERM.contentArticle.add" type="primary" :icon="CirclePlus" @click="handleAdd">
+            新增
+          </el-button>
+          <el-button v-permission="PERM.contentArticle.batchDelete" type="danger" :icon="Delete" @click="handleBatchDelete">
+            批量删除
+          </el-button>
+        </div>
+        <div>
+          <el-button
+            v-permission="PERM.contentArticle.import"
+            :icon="Download"
+            @click="handleDownloadTemplate"
+          >
+            下载模板
+          </el-button>
+          <el-button
+            v-permission="PERM.contentArticle.import"
+            type="success"
+            :icon="Upload"
+            :loading="importLoading"
+            @click="triggerImport"
+          >
+            导入
+          </el-button>
+          <el-button
+            v-permission="PERM.contentArticle.export"
+            :icon="Download"
+            :loading="exportLoading"
+            @click="handleExportFilter"
+          >
+            导出筛选
+          </el-button>
+          <el-button
+            v-permission="PERM.contentArticle.export"
+            :icon="Download"
+            :loading="exportLoading"
+            @click="handleExportSelected"
+          >
+            导出勾选
+          </el-button>
+          <input
+            ref="importInputRef"
+            class="hidden-file"
+            type="file"
+            accept=".xlsx"
+            @change="handleImportChange"
+          >
+        </div>
       </div>
     </template>
 
@@ -244,3 +352,18 @@ watch(
   </PageLayout>
   <FormDialog ref="formDialogRef" :categories="categoryOptions" @success="tableListRef?.refresh()" />
 </template>
+
+<style lang="scss" scoped>
+.toolbar-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.hidden-file {
+  display: none;
+}
+</style>
