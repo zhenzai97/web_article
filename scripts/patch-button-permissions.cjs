@@ -53,6 +53,7 @@ const simpleCrud = [
   ["content/category/index.vue", "contentCategory"],
   ["content/tourism/index.vue", "contentTourism"],
   ["content/industryReport/index.vue", "contentIndustryReport"],
+  ["content/activity/index.vue", "contentActivity"],
   ["operation/advertising/index.vue", "operationAdvertising"],
   ["operation/advertisingSpace/index.vue", "operationAdvertisingSpace"],
   ["member/company/index.vue", "memberCompany"],

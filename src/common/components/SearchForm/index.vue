@@ -1,6 +1,7 @@
 <script setup>
+import { PAGE_LAYOUT_KEY } from "@@/composables/usePageLayout"
 import { resetDateRangeFields } from "@@/utils/sanitize-search-params"
-import { Refresh, Search, Setting } from "@element-plus/icons-vue"
+import { ArrowUp, Refresh, Search, Setting } from "@element-plus/icons-vue"
 import FilterConfigDialog from "./components/FilterConfigDialog.vue"
 import { useFilterLayout } from "./composables/useFilterLayout"
 import { getFilterDefaultSpan, getFilterFormProp, resolveFilter } from "./filters"
@@ -53,6 +54,8 @@ const formRef = useTemplateRef("formRef")
 
 const configVisible = ref(false)
 
+const pageLayout = inject(PAGE_LAYOUT_KEY, null)
+
 const { layout, visibleItems, applyLayout } = useFilterLayout(
   () => props.items,
   () => props.cacheKey
@@ -70,6 +73,10 @@ function handleReset() {
   resetDateRangeFields(model.value, props.items)
   formRef.value?.resetFields()
   emit("reset")
+}
+
+function handleCollapse() {
+  pageLayout?.collapseSearch?.()
 }
 
 function handleConfigSave(nextLayout) {
@@ -97,6 +104,14 @@ defineExpose({ reset: handleReset })
           </el-button>
           <el-button :icon="Refresh" :loading="loading" @click="handleReset">
             重置
+          </el-button>
+          <el-button
+            v-if="pageLayout?.collapseSearch"
+            :icon="ArrowUp"
+            title="收起筛选"
+            @click="handleCollapse"
+          >
+            收起
           </el-button>
           <el-button
             v-if="configurable"

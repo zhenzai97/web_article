@@ -41,6 +41,14 @@ export const PERM = {
     edit: "content:industryReport:edit",
     delete: "content:industryReport:delete"
   },
+  contentActivity: {
+    add: "content:activity:add",
+    edit: "content:activity:edit",
+    delete: "content:activity:delete"
+  },
+  contentActivityRegistration: {
+    delete: "content:activityRegistration:delete"
+  },
   operationAdvertising: {
     add: "operation:advertising:add",
     edit: "operation:advertising:edit",
@@ -53,6 +61,9 @@ export const PERM = {
   },
   operationHomeSection: {
     edit: "operation:homeSection:edit"
+  },
+  operationProjectConfig: {
+    edit: "operation:projectConfig:edit"
   },
   memberCompany: {
     add: "operation:company:add",

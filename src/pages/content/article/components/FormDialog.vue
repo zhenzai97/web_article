@@ -29,6 +29,7 @@ function initForm() {
     title: "",
     categoryId: "",
     cover: "",
+    link: "",
     content: "",
     author: "",
     status: ArticleStatusEnum.Draft,
@@ -81,6 +82,7 @@ async function show(data) {
       title: detail.title,
       categoryId: detail.categoryId,
       cover: detail.cover ?? "",
+      link: detail.link ?? "",
       content: detail.content ?? "",
       author: detail.author ?? "",
       status: detail.status ?? ArticleStatusEnum.Draft,
@@ -124,6 +126,7 @@ function confirm() {
       title: form.value.title,
       categoryId: form.value.categoryId,
       cover: form.value.cover || undefined,
+      link: form.value.link || undefined,
       content: form.value.content,
       author: form.value.author || undefined,
       status: form.value.status,
@@ -178,6 +181,9 @@ defineExpose({ show })
               </el-form-item>
               <el-form-item label="封面图" prop="cover">
                 <ImageUpload v-model="form.cover" disabled :width="160" :height="160" />
+              </el-form-item>
+              <el-form-item label="外链" prop="link">
+                <el-input v-model="form.link" placeholder="可选，如公众号文章链接" clearable />
               </el-form-item>
               <!-- <el-form-item label="作者" prop="author">
                 <el-input v-model="form.author" placeholder="可选" />

@@ -99,6 +99,7 @@ const columns = [
   { prop: "title", label: "标题", align: "left", minWidth: 200 },
   { prop: "categoryName", label: "文章分类", align: "center", minWidth: 120 },
   { prop: "video", label: "视频", align: "center", slot: "video", width: 90 },
+  { prop: "link", label: "外链", align: "left", slot: "link", minWidth: 180 },
   { prop: "isTop", label: "置顶", align: "center", slot: "isTop", width: 70 },
   { prop: "isHome", label: "首页推荐", align: "center", slot: "isHome", width: 90 },
   { prop: "status", label: "状态", align: "center", slot: "status", width: 70 },
@@ -330,6 +331,19 @@ watch(
             :src="row.video"
           />
         </template>
+        <template #link="{ row }">
+          <el-link
+            v-if="row.link"
+            :href="row.link"
+            type="primary"
+            target="_blank"
+            :underline="false"
+            class="link-cell"
+          >
+            {{ row.link }}
+          </el-link>
+          <span v-else>-</span>
+        </template>
         <template #status="{ row }">
           <OptionLabel :options="ENABLE_STATUS_OPTIONS" :value="row.status" />
         </template>
@@ -365,5 +379,14 @@ watch(
 
 .hidden-file {
   display: none;
+}
+
+.link-cell {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
 }
 </style>

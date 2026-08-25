@@ -8,6 +8,7 @@ const pages = [
   { parentId: "2074426309422526466", base: "content:category", name: "分类", actions: [["add", "新增"], ["edit", "编辑"], ["delete", "删除"]] },
   { parentId: "2077581549781012481", base: "content:tourism", name: "文旅", actions: [["add", "新增"], ["edit", "编辑"], ["delete", "删除"]] },
   { parentId: "2086741000000000001", base: "content:industryReport", name: "行业报告", actions: [["add", "新增"], ["edit", "编辑"], ["delete", "删除"]] },
+  { parentId: "2086771000000000001", base: "content:activity", name: "活动", actions: [["add", "新增"], ["edit", "编辑"], ["delete", "删除"]] },
   { parentId: "2077278473073451010", base: "operation:advertising", name: "广告", actions: [["add", "新增"], ["edit", "编辑"], ["delete", "删除"]] },
   { parentId: "2077278834836365313", base: "operation:advertisingSpace", name: "广告位", actions: [["add", "新增"], ["edit", "编辑"], ["delete", "删除"]] },
   { parentId: "2077594567025827841", base: "operation:homeSection", name: "首页配置", actions: [["edit", "编辑"]] },
