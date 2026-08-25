@@ -1,6 +1,6 @@
 <script setup>
+import logo from "@@/assets/images/brand/logo.png"
 import { useLayoutMode } from "@@/composables/useLayoutMode"
-import { Document } from "@element-plus/icons-vue"
 
 const { collapse = true } = defineProps({
   collapse: {
@@ -15,14 +15,10 @@ const { isTop } = useLayoutMode()
 <template>
   <div class="layout-logo-container" :class="{ collapse, 'layout-mode-top': isTop }">
     <router-link class="layout-logo-link" to="/">
-      <span class="layout-logo-icon">
-        <el-icon :size="collapse ? 20 : 18">
-          <Document />
-        </el-icon>
-      </span>
+      <img class="layout-logo-icon" :src="logo" alt="德宏州新媒体协会">
       <span v-if="!collapse" class="layout-logo-text">
-        <span class="logo-title">文章后台</span>
-        <span class="logo-subtitle">Article CMS</span>
+        <span class="logo-title">德宏州新媒体协会</span>
+        <span class="logo-subtitle">内容运营管理系统</span>
       </span>
     </router-link>
   </div>
@@ -49,7 +45,7 @@ const { isTop } = useLayoutMode()
   justify-content: center;
   width: 100%;
   height: 100%;
-  padding: 0 16px;
+  padding: 0 12px;
   color: #fff;
   text-decoration: none;
   transition: opacity 0.2s;
@@ -60,16 +56,11 @@ const { isTop } = useLayoutMode()
 }
 
 .layout-logo-icon {
-  display: flex;
   flex-shrink: 0;
-  align-items: center;
-  justify-content: center;
   width: 34px;
   height: 34px;
-  border: 1px solid rgb(212 168 83 / 35%);
+  object-fit: contain;
   border-radius: 8px;
-  color: #d4a853;
-  background: rgb(212 168 83 / 12%);
 }
 
 .layout-logo-text {
@@ -78,23 +69,25 @@ const { isTop } = useLayoutMode()
   flex-direction: column;
   align-items: flex-start;
   min-width: 0;
-  line-height: 1.2;
+  line-height: 1.25;
   text-align: left;
 }
 
 .logo-title {
-  font-size: 16px;
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 14px;
   font-weight: 600;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.02em;
   white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .logo-subtitle {
   margin-top: 2px;
-  font-size: 10px;
-  letter-spacing: 0.08em;
-  color: rgb(255 255 255 / 45%);
-  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: rgb(255 255 255 / 50%);
   white-space: nowrap;
 }
 
@@ -105,6 +98,11 @@ const { isTop } = useLayoutMode()
 
   .layout-logo-text {
     display: none;
+  }
+
+  .layout-logo-icon {
+    width: 28px;
+    height: 28px;
   }
 }
 </style>

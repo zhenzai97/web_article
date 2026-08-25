@@ -1,14 +1,6 @@
 import { request } from "@/http/axios"
 
-/** 获取登录验证码 */
-export function getCaptchaApi() {
-  return request({
-    url: "auth/captcha",
-    method: "get"
-  })
-}
-
-/** 登录并返回 Token */
+/** 登录并返回 Token（需先完成滑块验证，传 captchaId） */
 export function loginApi(data) {
   return request({
     url: "user/login",

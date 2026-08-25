@@ -5,6 +5,7 @@ import goldenPagodaCover from "@@/assets/images/login/微信图片_2026082516551
 import silverPagodaCover from "@@/assets/images/login/微信图片_20260825165656_91_15.png"
 import ThemeSwitch from "@@/components/ThemeSwitch/index.vue"
 import { Lock, User } from "@element-plus/icons-vue"
+import { useSliderCaptcha } from "@/pages/login/composables/useSliderCaptcha"
 import { useSettingsStore } from "@/pinia/stores/settings"
 import { useUserStore } from "@/pinia/stores/user"
 
@@ -15,6 +16,7 @@ const settingsStore = useSettingsStore()
 
 const loginFormRef = useTemplateRef("loginFormRef")
 const loading = ref(false)
+const { openCaptcha, resetCaptcha } = useSliderCaptcha()
 
 const coverSlides = [
   { src: goldenPagodaCover, position: "50% 22%" },
@@ -51,20 +53,28 @@ const loginFormRules = {
 }
 
 function handleLogin() {
-  loginFormRef.value?.validate((valid) => {
+  loginFormRef.value?.validate(async (valid) => {
     if (!valid) {
       ElMessage.error("表单校验不通过")
       return
     }
     loading.value = true
-    loginApi(loginFormData).then(({ data }) => {
+    try {
+      resetCaptcha()
+      const captchaId = await openCaptcha()
+      const { data } = await loginApi({
+        ...loginFormData,
+        captchaId
+      })
       userStore.setToken(data.token)
       router.push(route.query.redirect ? decodeURIComponent(route.query.redirect) : "/")
-    }).catch(() => {
-      loginFormData.userPassword = ""
-    }).finally(() => {
+    } catch (error) {
+      if (error instanceof Error && error.message !== "已取消验证") {
+        loginFormData.userPassword = ""
+      }
+    } finally {
       loading.value = false
-    })
+    }
   })
 }
 </script>
@@ -157,6 +167,9 @@ function handleLogin() {
         </div>
       </div>
     </main>
+
+    <!-- 滑块验证码挂载点：全屏居中遮罩 -->
+    <div id="login-captcha-box" class="login-captcha-box" />
   </div>
 </template>
 
@@ -165,14 +178,15 @@ function handleLogin() {
   --brand-primary: #00bdd2;
   --brand-dark: #000835;
 
+  position: relative;
   display: flex;
   min-height: 100vh;
-  background: #fff;
+  background: #f7f9fc;
 }
 
 .login-cover {
   position: relative;
-  flex: 0 0 38%;
+  flex: 0 0 42%;
   min-height: 100vh;
   overflow: hidden;
   color: #fff;
@@ -195,26 +209,26 @@ function handleLogin() {
     position: absolute;
     inset: 0;
     background:
-      linear-gradient(90deg, rgb(0 8 53 / 72%) 0%, rgb(0 8 53 / 38%) 50%, rgb(0 8 53 / 14%) 100%),
-      linear-gradient(180deg, rgb(0 8 53 / 48%) 0%, transparent 35%, rgb(0 8 53 / 58%) 100%);
+      linear-gradient(90deg, rgb(0 8 53 / 70%) 0%, rgb(0 8 53 / 34%) 55%, rgb(0 8 53 / 16%) 100%),
+      linear-gradient(180deg, rgb(0 8 53 / 42%) 0%, transparent 40%, rgb(0 8 53 / 56%) 100%);
   }
 
   &__content {
     position: relative;
     z-index: 1;
-    padding: 56px 48px 0;
+    padding: 64px 56px 0;
   }
 
   &__title {
     margin: 0 0 12px;
-    font-size: clamp(1.75rem, 2.8vw, 2.25rem);
+    font-size: clamp(1.85rem, 2.8vw, 2.4rem);
     font-weight: 700;
     line-height: 1.3;
     letter-spacing: 0.04em;
   }
 
   &__subtitle {
-    margin: 0 0 16px;
+    margin: 0 0 18px;
     font-size: 18px;
     font-weight: 500;
     color: rgb(255 255 255 / 92%);
@@ -230,9 +244,9 @@ function handleLogin() {
 
   &__copyright {
     position: absolute;
-    right: 48px;
-    bottom: 32px;
-    left: 48px;
+    right: 56px;
+    bottom: 36px;
+    left: 56px;
     z-index: 1;
     margin: 0;
     font-size: 12px;
@@ -246,7 +260,7 @@ function handleLogin() {
   flex: 1;
   align-items: center;
   justify-content: center;
-  padding: 48px 32px;
+  padding: 48px 40px;
   background: #fff;
 }
 
@@ -259,18 +273,18 @@ function handleLogin() {
 }
 
 .login-form-panel {
-  width: min(420px, 100%);
+  width: min(400px, 100%);
 }
 
 .login-brand {
   display: flex;
-  gap: 16px;
+  gap: 14px;
   align-items: center;
-  margin-bottom: 48px;
+  margin-bottom: 40px;
 
   &__logo {
-    width: 56px;
-    height: 56px;
+    width: 52px;
+    height: 52px;
     object-fit: contain;
   }
 
@@ -279,12 +293,13 @@ function handleLogin() {
       margin: 0 0 4px;
       font-size: 22px;
       font-weight: 700;
+      line-height: 1.3;
       color: var(--brand-dark);
     }
 
     p {
       margin: 0;
-      font-size: 14px;
+      font-size: 13px;
       color: #909399;
     }
   }
@@ -307,7 +322,7 @@ function handleLogin() {
 
 .login-form {
   :deep(.el-form-item) {
-    margin-bottom: 20px;
+    margin-bottom: 22px;
   }
 
   :deep(.el-form-item:last-child) {
@@ -315,9 +330,14 @@ function handleLogin() {
   }
 
   :deep(.el-input__wrapper) {
-    padding: 6px 14px;
-    border-radius: 6px;
-    box-shadow: 0 0 0 1px #dcdfe6 inset;
+    padding: 8px 14px;
+    border-radius: 10px;
+    box-shadow: 0 0 0 1px #e4e7ed inset;
+    transition: box-shadow 0.2s ease;
+  }
+
+  :deep(.el-input__wrapper:hover) {
+    box-shadow: 0 0 0 1px #c0c4cc inset;
   }
 
   :deep(.el-input__wrapper.is-focus) {
@@ -327,19 +347,31 @@ function handleLogin() {
 
 .login-btn {
   width: 100%;
-  height: 44px;
-  margin-top: 12px;
+  height: 46px;
+  margin-top: 16px;
   border: none;
   border-radius: 999px;
   font-size: 15px;
   font-weight: 600;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.12em;
   background: var(--brand-primary);
 
   &:hover,
   &:focus {
     background: #26d1e4;
   }
+}
+
+.login-captcha-box {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgb(0 8 53 / 48%);
+  backdrop-filter: blur(2px);
 }
 
 @media (width <= 960px) {
@@ -349,10 +381,14 @@ function handleLogin() {
 
   .login-cover {
     flex: none;
-    min-height: 280px;
+    min-height: 240px;
 
     &__content {
-      padding: 36px 28px 0;
+      padding: 32px 24px 0;
+    }
+
+    &__title {
+      font-size: 1.5rem;
     }
 
     &__tagline {
@@ -360,18 +396,18 @@ function handleLogin() {
     }
 
     &__copyright {
-      right: 28px;
-      bottom: 20px;
-      left: 28px;
+      right: 24px;
+      bottom: 16px;
+      left: 24px;
     }
   }
 
   .login-main {
-    padding: 36px 24px 48px;
+    padding: 32px 24px 48px;
   }
 
   .login-brand {
-    margin-bottom: 32px;
+    margin-bottom: 28px;
   }
 }
 
@@ -382,6 +418,10 @@ function handleLogin() {
 }
 
 html.dark {
+  .login-page {
+    background: #141414;
+  }
+
   .login-main {
     background: #141414;
   }
@@ -397,5 +437,20 @@ html.dark {
   .login-form :deep(.el-input__wrapper) {
     box-shadow: 0 0 0 1px #434343 inset;
   }
+}
+</style>
+
+<!-- 验证码 DOM 由第三方注入，需非 scoped 样式居中 -->
+<style lang="scss">
+#login-captcha-box:has(#tianai-captcha-parent) {
+  display: flex !important;
+}
+
+#login-captcha-box #tianai-captcha-parent {
+  position: relative;
+  z-index: 1;
+  margin: 0 auto;
+  border-radius: 12px;
+  box-shadow: 0 16px 48px rgb(0 8 53 / 28%);
 }
 </style>
