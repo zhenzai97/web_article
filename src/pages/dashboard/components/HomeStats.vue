@@ -31,7 +31,7 @@ function goTourismType(item) {
 </script>
 
 <template>
-  <el-row :gutter="16" class="stats-row">
+  <el-row :gutter="10" class="stats-row">
     <el-col :span="24">
       <div class="stat-card" :class="`stat-card--${stats.article.theme}`">
         <div class="stat-card__header">
@@ -116,11 +116,11 @@ function goTourismType(item) {
 
 <style lang="scss" scoped>
 .stats-row {
-  margin-bottom: 20px;
+  margin-bottom: -10px;
 }
 
 .stat-card {
-  margin-bottom: 16px;
+  margin-bottom: 10px;
   padding: 18px 20px;
   border: 1px solid var(--el-border-color-lighter);
   border-radius: 12px;

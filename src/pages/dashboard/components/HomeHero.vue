@@ -94,7 +94,7 @@ defineProps({
 
 <style lang="scss" scoped>
 .home-top {
-  margin-bottom: 20px;
+  margin-bottom: 0;
 }
 
 .home-hero {

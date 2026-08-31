@@ -58,7 +58,7 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .panel {
-  margin-bottom: 16px;
+  margin-bottom: 0;
   padding: 20px 22px;
   border: 1px solid var(--el-border-color-lighter);
   border-radius: 12px;

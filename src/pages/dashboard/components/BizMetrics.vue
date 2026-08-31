@@ -14,7 +14,7 @@ function go(path) {
 </script>
 
 <template>
-  <el-row :gutter="12" class="biz-metrics">
+  <el-row :gutter="10" class="biz-metrics">
     <el-col
       v-for="item in metrics"
       :key="item.key"
@@ -38,7 +38,7 @@ function go(path) {
 
 <style lang="scss" scoped>
 .biz-metrics {
-  margin-bottom: 8px;
+  margin-bottom: -10px;
 }
 
 .metric-card {
@@ -46,7 +46,7 @@ function go(path) {
   flex-direction: column;
   gap: 8px;
   width: 100%;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   padding: 14px 16px;
   border: 1px solid var(--el-border-color-lighter);
   border-radius: 12px;

@@ -56,7 +56,7 @@ const { greeting, displayName, todaySummary } = useHomeGreeting(stats, weekTrend
 
     <HomeStats :stats="stats" />
 
-    <el-row :gutter="16" class="main-row">
+    <el-row :gutter="10" class="main-row">
       <el-col :xs="24" :lg="16">
         <TodoPanel :todos="todos" />
         <RecentArticlesPanel :articles="recentArticles" />
@@ -73,14 +73,25 @@ const { greeting, displayName, todaySummary } = useHomeGreeting(stats, weekTrend
 
 <style lang="scss" scoped>
 .home-page {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   width: 100%;
-}
-
-.fallback-tip {
-  margin-bottom: 16px;
 }
 
 .main-row {
   align-items: flex-start;
+
+  :deep(.el-col) {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+}
+
+@media (width <= 1199px) {
+  .main-row :deep(.el-col + .el-col) {
+    margin-top: 10px;
+  }
 }
 </style>
